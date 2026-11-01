@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curve Signature Generator</title>
+<meta name="description" content="Create your Curve Modern Technology (CMT) email signature for Outlook and Gmail.">
+<link rel="icon" href="logo.png">
+<style>
+  :root {
+    --navy: #2B2E73;
+    --red: #E0242F;
+    --bg: #f4f5f9;
+    --panel: #ffffff;
+    --text: #1d1f33;
+    --muted: #6b6f85;
+    --border: #dfe1ea;
+    --input: #ffffff;
+    --focus: rgba(43, 46, 115, .25);
+    --ok: #1d7a46;
+    --warn-bg: #fff6e5;
+    --warn-text: #7a4b00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12131c;
+      --panel: #1b1d2a;
+      --text: #e8e9f2;
+      --muted: #9a9db3;
+      --border: #2e3144;
+      --input: #141522;
+      --focus: rgba(140, 145, 230, .35);
+      --ok: #5fd08f;
+      --warn-bg: #3a2d12;
+      --warn-text: #f3cf8a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12131c; --panel: #1b1d2a; --text: #e8e9f2; --muted: #9a9db3; --border: #2e3144;
+    --input: #141522; --focus: rgba(140, 145, 230, .35); --ok: #5fd08f; --warn-bg: #3a2d12; --warn-text: #f3cf8a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 "Segoe UI", Tahoma, Arial, sans-serif;
+  }
+  header {
+    background: var(--navy); color: #fff; padding: 18px 16px;
+    border-bottom: 4px solid var(--red);
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  header .wrap { display: flex; align-items: center; gap: 14px; padding: 0; }
+  header img { height: 44px; background: #fff; border-radius: 6px; padding: 4px 6px; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 700; }
+  header p { margin: 0; opacity: .8; font-size: 13px; }
+  main.wrap { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 20px; padding-top: 20px; padding-bottom: 40px; }
+  @media (max-width: 860px) { main.wrap { grid-template-columns: minmax(0, 1fr); } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+  .panel h2 { margin: 0 0 12px; font-size: 15px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+  fieldset { border: 0; padding: 0; margin: 0 0 14px; }
+  legend { font-weight: 700; font-size: 13px; color: var(--navy); margin-bottom: 8px; padding: 0; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) legend { color: #aab0ff; } }
+  :root[data-theme="dark"] legend { color: #aab0ff; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  input, select {
+    display: block; width: 100%; margin-top: 4px; padding: 8px 10px;
+    border: 1px solid var(--border); border-radius: 7px; background: var(--input); color: var(--text);
+    font: inherit;
+  }
+  input::placeholder { color: var(--muted); opacity: .55; }
+  input:focus, select:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px var(--focus); }
+  .row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 10px; }
+  .seg { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .seg label { flex: 1; margin: 0; text-align: center; cursor: pointer; }
+  .seg input { display: none; }
+  .seg span { display: block; padding: 8px; font-weight: 600; color: var(--muted); }
+  .seg input:checked + span { background: var(--navy); color: #fff; }
+  details { margin-top: 6px; }
+  summary { cursor: pointer; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .preview-box {
+    background: #ffffff; border: 1px dashed var(--border); border-radius: 8px;
+    padding: 24px 16px; overflow-x: auto;
+  }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 6px; }
+  button {
+    font: inherit; font-weight: 600; border-radius: 8px; padding: 10px 16px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--panel); color: var(--text);
+  }
+  button.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+  button:hover { filter: brightness(1.08); }
+  button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .status { min-height: 22px; font-size: 13px; color: var(--ok); font-weight: 600; }
+  .warn { background: var(--warn-bg); color: var(--warn-text); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 14px; }
+  .help h3 { font-size: 14px; margin: 16px 0 4px; }
+  .help ol { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; }
+  .help code { background: var(--bg); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
+  .note { font-size: 12px; color: var(--muted); }
+  .right { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding: 0 16px;">
+    <img src="logo.png" alt="Curve">
+    <div>
+      <h1>Email Signature Generator</h1>
+      <p>Curve Modern Technology - CMT</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Form -->
+  <section class="panel" aria-label="Your details">
+    <h2>Your details</h2>
+    <form id="f" autocomplete="on" onsubmit="return false">
+      <fieldset>
+        <legend>Layout</legend>
+        <div class="seg">
+          <label><input type="radio" name="dir" value="ltr" checked><span>English</span></label>
+          <label><input type="radio" name="dir" value="rtl"><span>العربية</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Identity</legend>
+        <label>Full name *<input name="name" placeholder="Mahmoud Fahmy" required></label>
+        <label>Name in the other language (optional)<input name="name2" placeholder="محمود فهمي" dir="auto"></label>
+        <label>Job title<input name="title" placeholder="Oracle SCM Functional Consultant" dir="auto"></label>
+        <label>Department (optional)<input name="dept" placeholder="Oracle Practice" dir="auto"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Contact</legend>
+        <label>Mobile<input name="mobile" type="tel" placeholder="+20 10 1234 5678" dir="ltr"></label>
+        <div class="row">
+          <label>Office phone<input name="office" type="tel" placeholder="+20 2 1234 5678" dir="ltr"></label>
+          <label>Ext.<input name="ext" placeholder="123" dir="ltr"></label>
+        </div>
+        <label>Work email<input name="email" type="email" placeholder="m.fahmy@curve-cmt.com" dir="ltr"></label>
+        <label>Other email (optional)<input name="email2" type="email" placeholder="" dir="ltr"></label>
+        <label>LinkedIn URL (optional)<input name="linkedin" type="url" placeholder="https://www.linkedin.com/in/..." dir="ltr"></label>
+      </fieldset>
+
+      <details>
+        <summary>Company settings</summary>
+        <label>Company line<input name="company" value="Curve Modern Technology - CMT" dir="auto"></label>
+        <label>Website<input name="website" value="www.curve-cmt.com" dir="ltr"></label>
+        <label>Logo URL (leave empty to use this site's logo)<input name="logo" type="url" placeholder="https://..." dir="ltr"></label>
+      </details>
+    </form>
+  </section>
+
+  <div class="right">
+    <!-- Preview -->
+    <section class="panel" aria-label="Preview">
+      <h2>Live preview</h2>
+      <div id="fileWarn" class="warn" hidden>
+        This page is open from your computer, so the logo link points to a file on this PC and people who
+        get your emails won't see it. Use the published website link, or enter a public
+        <b>Logo URL</b> under Company settings.
+      </div>
+      <div class="preview-box"><div id="sig"></div></div>
+      <div class="actions">
+        <button class="primary" id="copySig" type="button">Copy signature</button>
+        <button id="copyHtml" type="button">Copy HTML code</button>
+        <button id="download" type="button">Download .htm</button>
+        <button id="reset" type="button">Clear form</button>
+      </div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+      <p class="note">Your details stay in this browser only. Nothing is sent to any server.</p>
+    </section>
+
+    <!-- How to install -->
+    <section class="panel help" aria-label="How to add it">
+      <h2>How to add it to your email</h2>
+      <h3>Outlook (desktop, new or classic)</h3>
+      <ol>
+        <li>Click <b>Copy signature</b>.</li>
+        <li>Outlook: <code>File &gt; Options &gt; Mail &gt; Signatures</code> (new Outlook: <code>Settings &gt; Accounts &gt; Signatures</code>).</li>
+        <li>Click <b>New</b>, give it a name, click in the editor box and press <b>Ctrl+V</b>.</li>
+        <li>Choose it as the default for new messages and replies, then <b>Save</b>.</li>
+      </ol>
+      <h3>Outlook on the web</h3>
+      <ol>
+        <li><code>Settings &gt; Account &gt; Signatures</code>, then paste with <b>Ctrl+V</b> and <b>Save</b>.</li>
+      </ol>
+      <h3>Gmail</h3>
+      <ol>
+        <li><code>Settings (gear) &gt; See all settings &gt; General &gt; Signature</code>.</li>
+        <li><b>Create new</b>, paste with <b>Ctrl+V</b>, scroll down and click <b>Save Changes</b>.</li>
+      </ol>
+      <p class="note">If the logo shows as a broken image after pasting, open this page from its published https link (not a saved copy) and copy again.</p>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  var NAVY = '#2B2E73', RED = '#E0242F';
+  var STORE = 'curve-signature-v1';
+  var form = document.getElementById('f');
+  var sigBox = document.getElementById('sig');
+  var statusEl = document.getElementById('status');
+
+  if (location.protocol === 'file:') document.getElementById('fileWarn').hidden = false;
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function val(n) {
+    var el = form.elements[n];
+    if (el && el.length && !el.tagName) { // radio group
+      for (var i = 0; i < el.length; i++) if (el[i].checked) return el[i].value;
+      return '';
+    }
+    return el ? el.value.trim() : '';
+  }
+  function siteUrl(w) {
+    if (!w) return '';
+    return /^https?:\/\//i.test(w) ? w : 'https://' + w;
+  }
+  function telHref(p) { return 'tel:' + p.replace(/[^\d+]/g, ''); }
+
+  function logoUrl() {
+    var custom = val('logo');
+    if (custom) return custom;
+    return new URL('logo.png', location.href).href;
+  }
+
+  /* Email-safe HTML: tables + inline styles only (Outlook / Gmail strip <style>) */
+  function buildSignature() {
+    var d = {
+      dir: val('dir') || 'ltr', name: val('name'), name2: val('name2'), title: val('title'), dept: val('dept'),
+      mobile: val('mobile'), office: val('office'), ext: val('ext'), email: val('email'), email2: val('email2'),
+      linkedin: val('linkedin'), company: val('company'), website: val('website')
+    };
+    var rtl = d.dir === 'rtl';
+    var L = rtl
+      ? { mobile: 'موبايل', office: 'هاتف', ext: 'تحويلة', email: 'البريد', web: 'الموقع', linkedin: 'لينكد إن' }
+      : { mobile: 'Mobile', office: 'Office', ext: 'Ext.', email: 'Email', web: 'Web', linkedin: 'LinkedIn' };
+    var align = rtl ? 'right' : 'left';
+    var font = "font-family:'Segoe UI',Tahoma,Arial,sans-serif;";
+    var link = 'color:#333333;text-decoration:none;';
+
+    function row(label, valueHtml, color) {
+      return '<tr>'
+        + '<td style="' + font + 'font-size:12px;font-weight:700;color:' + (color || NAVY) + ';padding:1px 0;'
+        + (rtl ? 'padding-left:10px;' : 'padding-right:10px;') + 'white-space:nowrap;vertical-align:top;text-align:' + align + ';">' + esc(label) + '</td>'
+        + '<td style="' + font + 'font-size:13px;color:#333333;padding:1px 0;vertical-align:top;text-align:' + align + ';">' + valueHtml + '</td>'
+        + '</tr>';
+    }
+    function ltrSpan(inner) { return '<span dir="ltr">' + inner + '</span>'; }
+
+    var rows = '';
+    if (d.mobile) rows += row(L.mobile, ltrSpan('<a href="' + esc(telHref(d.mobile)) + '" style="' + link + '">' + esc(d.mobile) + '</a>'));
+    if (d.office) rows += row(L.office, ltrSpan('<a href="' + esc(telHref(d.office)) + '" style="' + link + '">' + esc(d.office) + '</a>')
+      + (d.ext ? ' &nbsp;' + esc(L.ext) + ' ' + ltrSpan(esc(d.ext)) : ''));
+    if (d.email) rows += row(L.email, ltrSpan('<a href="mailto:' + esc(d.email) + '" style="' + link + '">' + esc(d.email) + '</a>'), RED);
+    if (d.email2) rows += row(L.email, ltrSpan('<a href="mailto:' + esc(d.email2) + '" style="' + link + '">' + esc(d.email2) + '</a>'));
+    if (d.website) rows += row(L.web, ltrSpan('<a href="' + esc(siteUrl(d.website)) + '" style="' + link + '">' + esc(d.website) + '</a>'));
+    if (d.linkedin) rows += row(L.linkedin, ltrSpan('<a href="' + esc(siteUrl(d.linkedin)) + '" style="' + link + '">' + esc(d.linkedin.replace(/^https?:\/\/(www\.)?/i, '')) + '</a>'));
+
+    var logoImg = '<img src="' + esc(logoUrl()) + '" width="140" height="80" alt="Curve - CMT" style="display:block;border:0;width:140px;height:80px;">';
+    if (d.website) logoImg = '<a href="' + esc(siteUrl(d.website)) + '" style="text-decoration:none;">' + logoImg + '</a>';
+
+    var logoCell = '<td style="vertical-align:middle;' + (rtl ? 'padding-left:16px;' : 'padding-right:16px;') + '">' + logoImg + '</td>';
+    var sideBorder = rtl ? 'border-right:2px solid ' + NAVY + ';padding-right:16px;' : 'border-left:2px solid ' + NAVY + ';padding-left:16px;';
+
+    var text = '<td style="vertical-align:middle;' + sideBorder + 'text-align:' + align + ';">'
+      + '<div style="' + font + 'font-size:19px;font-weight:700;color:' + NAVY + ';line-height:24px;">' + esc(d.name || (rtl ? 'الاسم' : 'Your Name')) + '</div>'
+      + (d.name2 ? '<div style="' + font + 'font-size:13px;color:#777777;line-height:18px;">' + esc(d.name2) + '</div>' : '')
+      + (d.title ? '<div style="' + font + 'font-size:14px;font-weight:600;color:#555555;line-height:20px;padding-top:4px;">' + esc(d.title) + '</div>' : '')
+      + (d.dept ? '<div style="' + font + 'font-size:13px;color:#777777;line-height:18px;">' + esc(d.dept) + '</div>' : '')
+      + (d.company ? '<div style="' + font + 'font-size:12px;color:#777777;line-height:18px;">' + esc(d.company) + '</div>' : '')
+      + (rows ? '<div style="height:8px;line-height:8px;font-size:8px;">&nbsp;</div>'
+        + '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;">' + rows + '</table>' : '')
+      + '</td>';
+
+    return '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;' + font + '">'
+      + '<tr>' + logoCell + text + '</tr>'
+      + '<tr><td colspan="2" style="padding-top:10px;"><div style="height:3px;line-height:3px;font-size:3px;width:60px;background-color:' + RED + ';' + (rtl ? 'margin-left:auto;' : '') + '">&nbsp;</div></td></tr>'
+      + '</table>';
+  }
+
+  function render() {
+    sigBox.innerHTML = buildSignature();
+    save();
+  }
+
+  function save() {
+    var data = {};
+    for (var i = 0; i < form.elements.length; i++) {
+      var el = form.elements[i];
+      if (!el.name) continue;
+      if (el.type === 'radio') { if (el.checked) data[el.name] = el.value; }
+      else data[el.name] = el.value;
+    }
+    try { localStorage.setItem(STORE, JSON.stringify(data)); } catch (e) {}
+  }
+  function load() {
+    var data = null;
+    try { data = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch (e) {}
+    if (!data) return;
+    for (var i = 0; i < form.elements.length; i++) {
+      var el = form.elements[i];
+      if (!el.name || !(el.name in data)) continue;
+      if (el.type === 'radio') el.checked = el.value === data[el.name];
+      else el.value = data[el.name];
+    }
+  }
+
+  function flash(msg) {
+    statusEl.textContent = msg;
+    clearTimeout(flash.t);
+    flash.t = setTimeout(function () { statusEl.textContent = ''; }, 3500);
+  }
+
+  function copyRich() {
+    var html = buildSignature();
+    if (navigator.clipboard && window.ClipboardItem && window.isSecureContext) {
+      var item = new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob([sigBox.innerText], { type: 'text/plain' })
+      });
+      return navigator.clipboard.write([item]).then(function () { flash('Signature copied - paste it into your email signature settings.'); }, fallbackCopy);
+    }
+    fallbackCopy();
+  }
+  function fallbackCopy() {
+    var range = document.createRange();
+    range.selectNodeContents(sigBox);
+    var sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    sel.removeAllRanges();
+    flash(ok ? 'Signature copied - paste it into your email signature settings.' : 'Copy failed - select the preview and press Ctrl+C.');
+  }
+  function copyHtml() {
+    var html = buildSignature();
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(html).then(function () { flash('HTML code copied.'); }, function () { flash('Copy failed.'); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = html; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); flash('HTML code copied.'); } catch (e) { flash('Copy failed.'); }
+      document.body.removeChild(ta);
+    }
+  }
+  function download() {
+    var doc = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Signature</title></head><body>' + buildSignature() + '</body></html>';
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([doc], { type: 'text/html;charset=utf-8' }));
+    a.download = 'Curve-signature.htm';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  form.addEventListener('input', render);
+  form.addEventListener('change', render);
+  document.getElementById('copySig').addEventListener('click', copyRich);
+  document.getElementById('copyHtml').addEventListener('click', copyHtml);
+  document.getElementById('download').addEventListener('click', download);
+  document.getElementById('reset').addEventListener('click', function () {
+    var keep = { company: val('company'), website: val('website'), logo: val('logo') };
+    form.reset();
+    form.elements.company.value = keep.company; form.elements.website.value = keep.website; form.elements.logo.value = keep.logo;
+    render();
+  });
+
+  load();
+  render();
+})();
+</script>
+</body>
+</html>
