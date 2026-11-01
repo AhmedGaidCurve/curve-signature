@@ -10,254 +10,277 @@
   :root {
     --navy: #2B2E73;
     --red: #E0242F;
-    --bg: #f4f5f9;
-    --panel: #ffffff;
-    --text: #1d1f33;
-    --muted: #6b6f85;
-    --border: #dfe1ea;
+    --bg: #ffffff;
+    --soft: #f5f6f8;
+    --text: #17181f;
+    --muted: #6b6e7b;
+    --border: #e4e5ea;
     --input: #ffffff;
-    --focus: rgba(43, 46, 115, .25);
+    --accent: #2B2E73;
+    --focus: rgba(43, 46, 115, .18);
     --ok: #1d7a46;
-    --warn-bg: #fff6e5;
-    --warn-text: #7a4b00;
+    --warn-text: #8a5300;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #12131c;
-      --panel: #1b1d2a;
-      --text: #e8e9f2;
-      --muted: #9a9db3;
-      --border: #2e3144;
-      --input: #141522;
-      --focus: rgba(140, 145, 230, .35);
-      --ok: #5fd08f;
-      --warn-bg: #3a2d12;
-      --warn-text: #f3cf8a;
+      --bg: #111218; --soft: #1a1b23; --text: #ececf1; --muted: #9a9caa; --border: #2a2c37;
+      --input: #15161d; --accent: #aab0ff; --focus: rgba(170, 176, 255, .22); --ok: #5fd08f; --warn-text: #f3cf8a;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #12131c; --panel: #1b1d2a; --text: #e8e9f2; --muted: #9a9db3; --border: #2e3144;
-    --input: #141522; --focus: rgba(140, 145, 230, .35); --ok: #5fd08f; --warn-bg: #3a2d12; --warn-text: #f3cf8a;
+    --bg: #111218; --soft: #1a1b23; --text: #ececf1; --muted: #9a9caa; --border: #2a2c37;
+    --input: #15161d; --accent: #aab0ff; --focus: rgba(170, 176, 255, .22); --ok: #5fd08f; --warn-text: #f3cf8a;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font: 15px/1.5 "Segoe UI", Tahoma, Arial, sans-serif;
-  }
-  header {
-    background: var(--navy); color: #fff; padding: 18px 16px;
-    border-bottom: 4px solid var(--red);
-  }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
-  header .wrap { display: flex; align-items: center; gap: 14px; padding: 0; }
-  header img { height: 44px; background: #fff; border-radius: 6px; padding: 4px 6px; }
-  header h1 { margin: 0; font-size: 20px; font-weight: 700; }
-  header p { margin: 0; opacity: .8; font-size: 13px; }
-  main.wrap { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 20px; padding-top: 20px; padding-bottom: 40px; }
-  @media (max-width: 860px) { main.wrap { grid-template-columns: minmax(0, 1fr); } }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
-  .panel h2 { margin: 0 0 12px; font-size: 15px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-  fieldset { border: 0; padding: 0; margin: 0 0 14px; }
-  legend { font-weight: 700; font-size: 13px; color: var(--navy); margin-bottom: 8px; padding: 0; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) legend { color: #aab0ff; } }
-  :root[data-theme="dark"] legend { color: #aab0ff; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 "Segoe UI", Tahoma, Arial, sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+
+  header { border-bottom: 1px solid var(--border); }
+  header .wrap { display: flex; align-items: center; gap: 12px; height: 60px; }
+  header img { height: 30px; background: #fff; border-radius: 4px; padding: 2px 4px; }
+  header h1 { margin: 0; font-size: 16px; font-weight: 600; }
+  header .ver { margin-left: auto; font-size: 12px; color: var(--muted); }
+
+  main.wrap { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 48px; padding-top: 28px; padding-bottom: 48px; }
+  @media (max-width: 880px) { main.wrap { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+
+  fieldset { border: 0; padding: 0; margin: 0 0 22px; min-width: 0; }
+  legend { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; padding: 0; }
   label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
-  input, select {
-    display: block; width: 100%; margin-top: 4px; padding: 8px 10px;
-    border: 1px solid var(--border); border-radius: 7px; background: var(--input); color: var(--text);
-    font: inherit;
+  input {
+    display: block; width: 100%; margin-top: 4px; padding: 8px 10px; font: inherit; color: var(--text);
+    background: var(--input); border: 1px solid var(--border); border-radius: 6px;
   }
-  input::placeholder { color: var(--muted); opacity: .55; }
-  input:focus, select:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px var(--focus); }
-  .row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 10px; }
-  .seg { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .seg label { flex: 1; margin: 0; text-align: center; cursor: pointer; }
-  .seg input { display: none; }
-  .seg span { display: block; padding: 8px 4px; font-weight: 600; color: var(--muted); }
-  .logo-opt { margin-top: 10px; }
-  .logo-opt .note, #logoMsg { margin: -4px 0 0; }
-  #logoMsg:empty { display: none; }
-  #logoMsg { margin-top: 8px; color: var(--warn-text); }
+  input::placeholder { color: var(--muted); opacity: .5; }
+  input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus); }
   input[type="file"] { padding: 6px; }
-  .seg input:checked + span { background: var(--navy); color: #fff; }
-  details { margin-top: 6px; }
-  summary { cursor: pointer; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-  .styles { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
-  .styles label { margin: 0; cursor: pointer; }
-  .styles input { display: none; }
-  .styles span {
-    display: block; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
-    font-weight: 600; color: var(--text); font-size: 13px; line-height: 1.3;
+  .row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 10px; }
+
+  /* Choice pills: Layout, Style, Logo */
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pills label { margin: 0; cursor: pointer; }
+  .pills input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  .pills span {
+    display: block; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px;
+    font-size: 13px; color: var(--text); user-select: none;
   }
-  .styles small { display: block; font-weight: 400; color: var(--muted); font-size: 11.5px; }
-  .styles input:checked + span { border-color: var(--navy); box-shadow: inset 0 0 0 1px var(--navy); background: var(--focus); }
+  .pills label:hover span { border-color: var(--muted); }
+  .pills input:checked + span { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .pills input:focus-visible + span { box-shadow: 0 0 0 3px var(--focus); }
+
+  .logo-opt { margin-top: 12px; }
+  .note { font-size: 12px; color: var(--muted); margin: 0; }
+  #logoMsg { margin-top: 8px; color: var(--warn-text); }
+  #logoMsg:empty { display: none; }
+  details > summary { cursor: pointer; font-size: 13px; color: var(--muted); list-style: none; }
+  details > summary::before { content: "+ "; }
+  details[open] > summary::before { content: "\2212 "; }
+  details[open] > summary { margin-bottom: 10px; }
+
+  /* Preview column stays in view while the form scrolls */
+  .preview { position: sticky; top: 20px; align-self: start; min-width: 0; }
+  @media (max-width: 880px) { .preview { position: static; } }
+  .preview-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+  .preview-head h2 { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .stage { background: var(--soft); border-radius: 10px; padding: 20px; }
+  .warn { color: var(--warn-text); font-size: 12.5px; margin: 0 0 12px; }
+
   /* Demo email - always light, like a real email */
-  .mail { background: #ffffff; color: #333333; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-  .mail-head { padding: 14px 18px; border-bottom: 1px solid #eceef3; }
-  .mail-subject { font-size: 17px; font-weight: 600; color: #1d1f33; margin-bottom: 8px; }
-  .mail-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #6b6f85; }
-  .mail-meta b { color: #1d1f33; }
-  #demoEmail { unicode-bidi: isolate; }
+  .mail { background: #ffffff; color: #333333; border: 1px solid #e4e5ea; border-radius: 8px; overflow: hidden; margin: 0 auto; }
+  .mail-head { padding: 14px 18px; border-bottom: 1px solid #eef0f3; }
+  .mail-subject { font-size: 16px; font-weight: 600; color: #17181f; margin-bottom: 8px; }
+  .mail-meta { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #6b6e7b; }
+  .mail-meta b { color: #17181f; }
+  .mail-email { unicode-bidi: isolate; }
   .mail-avatar {
-    width: 34px; height: 34px; flex: none; border-radius: 50%; background: var(--navy); color: #fff;
-    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;
+    width: 32px; height: 32px; flex: none; border-radius: 50%; background: var(--navy); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;
   }
   .mail-body { padding: 16px 18px 22px; font-size: 14px; line-height: 1.6; overflow-x: auto; }
   .mail-body p { margin: 0 0 10px; }
-  #sig { margin-top: 16px; }
-  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 6px; }
+  .mail-sig { margin-top: 16px; }
+
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; }
   button {
-    font: inherit; font-weight: 600; border-radius: 8px; padding: 10px 16px; cursor: pointer;
-    border: 1px solid var(--border); background: var(--panel); color: var(--text);
+    font: inherit; font-weight: 600; border-radius: 6px; padding: 8px 14px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
   }
   button.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
-  button:hover { filter: brightness(1.08); }
-  button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-  .status { min-height: 22px; font-size: 13px; color: var(--ok); font-weight: 600; }
-  .warn { background: var(--warn-bg); color: var(--warn-text); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 14px; }
-  .help h3 { font-size: 14px; margin: 16px 0 4px; }
-  .help ol { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; }
-  .help code { background: var(--bg); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
-  .note { font-size: 12px; color: var(--muted); }
-  .right { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+  button:hover { filter: brightness(1.06); }
+  button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus); }
+  .links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
+  .links button { border: 0; padding: 0; background: none; font-weight: 400; font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+  .links button:hover { color: var(--text); }
+  .status { min-height: 20px; margin-top: 8px; font-size: 13px; color: var(--ok); font-weight: 600; }
+
+  .help { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 14px; }
+  .help h3 { font-size: 13px; margin: 12px 0 4px; }
+  .help ol { margin: 0; padding-left: 20px; color: var(--muted); font-size: 13px; }
+  .help code { background: var(--soft); border-radius: 4px; padding: 1px 5px; font-size: 12px; }
+
+  /* Full view */
+  dialog#full {
+    width: min(1000px, calc(100vw - 32px)); height: calc(100vh - 48px); max-height: none; max-width: none;
+    padding: 0; border: 0; border-radius: 12px; background: var(--soft); color: var(--text);
+  }
+  dialog#full[open] { display: flex; flex-direction: column; }
+  dialog#full::backdrop { background: rgba(10, 11, 20, .55); }
+  .full-bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px;
+    background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1;
+  }
+  .full-bar h2 { margin: 0 auto 0 0; font-size: 14px; font-weight: 600; }
+  .full-stage { flex: 1; overflow: auto; padding: 28px 16px; }
+  .full-stage .mail { transition: max-width .2s ease; }
+  .full-stage.phone .mail { max-width: 390px; }
+  .full-stage.desktop .mail { max-width: 900px; }
+  .full-stage.desktop .mail-body { padding: 22px 28px 30px; }
 </style>
 </head>
 <body>
 <header>
-  <div class="wrap" style="padding: 0 16px;">
+  <div class="wrap">
     <img src="logo.png" alt="Curve">
-    <div>
-      <h1>Email Signature Generator</h1>
-      <p>Curve Modern Technology - CMT &middot; v4</p>
-    </div>
+    <h1>Email signature</h1>
+    <span class="ver">v5</span>
   </div>
 </header>
 
 <main class="wrap">
-  <!-- Form -->
-  <section class="panel" aria-label="Your details">
-    <h2>Your details</h2>
-    <form id="f" autocomplete="on" onsubmit="return false">
-      <fieldset>
-        <legend>Layout</legend>
-        <div class="seg">
-          <label><input type="radio" name="dir" value="ltr" checked><span>English</span></label>
-          <label><input type="radio" name="dir" value="rtl"><span>العربية</span></label>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Style</legend>
-        <div class="styles">
-          <label><input type="radio" name="sigStyle" value="slim" checked><span>Slim line<small>Full width, one thin line</small></span></label>
-          <label><input type="radio" name="sigStyle" value="minimal"><span>Minimal<small>Text, small logo below</small></span></label>
-          <label><input type="radio" name="sigStyle" value="side"><span>Side logo<small>Logo beside your name</small></span></label>
-          <label><input type="radio" name="sigStyle" value="text"><span>Text only<small>No logo, red accent</small></span></label>
-          <label><input type="radio" name="sigStyle" value="banner"><span>Banner<small>Bold, full width</small></span></label>
-        </div>
-      </fieldset>
-
-      <fieldset id="logoSet">
-        <legend>Logo</legend>
-        <div class="seg">
-          <label><input type="radio" name="logoMode" value="default" checked><span>Curve logo</span></label>
-          <label><input type="radio" name="logoMode" value="upload"><span>Upload</span></label>
-          <label><input type="radio" name="logoMode" value="url"><span>Image link</span></label>
-        </div>
-        <div id="logoUploadBox" class="logo-opt" hidden>
-          <label>Image file (PNG or JPG)<input type="file" id="logoFile" accept="image/png,image/jpeg,image/gif,image/webp"></label>
-          <p class="note">The image is saved inside the signature. Outlook shows it; Gmail does not show uploaded
-            images in signatures, so for Gmail use <b>Image link</b>.</p>
-        </div>
-        <div id="logoUrlBox" class="logo-opt" hidden>
-          <label>Image link<input name="logo" type="url" placeholder="https://www.example.com/logo.png" dir="ltr"></label>
-          <p class="note">The image must be online and public (for example on your company website), so people who get your emails can see it.</p>
-        </div>
-        <p class="note" id="logoMsg" role="status"></p>
-      </fieldset>
-
-      <fieldset>
-        <legend>Identity</legend>
-        <label>Full name *<input name="name" placeholder="Mahmoud Fahmy" required></label>
-        <label>Name in the other language (optional)<input name="name2" placeholder="محمود فهمي" dir="auto"></label>
-        <label>Job title<input name="title" placeholder="Oracle SCM Functional Consultant" dir="auto"></label>
-        <label>Department (optional)<input name="dept" placeholder="Oracle Practice" dir="auto"></label>
-      </fieldset>
-
-      <fieldset>
-        <legend>Contact</legend>
-        <label>Mobile<input name="mobile" type="tel" placeholder="+20 10 1234 5678" dir="ltr"></label>
-        <div class="row">
-          <label>Office phone<input name="office" type="tel" placeholder="+20 2 1234 5678" dir="ltr"></label>
-          <label>Ext.<input name="ext" placeholder="123" dir="ltr"></label>
-        </div>
-        <label>Work email<input name="email" type="email" placeholder="m.fahmy@curve-cmt.com" dir="ltr"></label>
-        <label>Other email (optional)<input name="email2" type="email" placeholder="" dir="ltr"></label>
-        <label>LinkedIn URL (optional)<input name="linkedin" type="url" placeholder="https://www.linkedin.com/in/..." dir="ltr"></label>
-      </fieldset>
-
-      <details>
-        <summary>Company settings</summary>
-        <label>Company line<input name="company" value="Curve Modern Technology - CMT" dir="auto"></label>
-        <label>Website<input name="website" value="www.curve-cmt.com" dir="ltr"></label>
-      </details>
-    </form>
-  </section>
-
-  <div class="right">
-    <!-- Preview -->
-    <section class="panel" aria-label="Preview">
-      <h2>Live preview - how your email will look</h2>
-      <div id="fileWarn" class="warn" hidden>
-        This page is open from your computer, so the logo link points to a file on this PC and people who
-        get your emails won't see it. Use the published website link, or choose another option under <b>Logo</b>.
+  <form id="f" autocomplete="on" onsubmit="return false" aria-label="Your details">
+    <fieldset>
+      <legend>Language</legend>
+      <div class="pills">
+        <label><input type="radio" name="dir" value="ltr" checked><span>English</span></label>
+        <label><input type="radio" name="dir" value="rtl"><span>العربية</span></label>
       </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Style</legend>
+      <div class="pills">
+        <label title="Full width, one thin line"><input type="radio" name="sigStyle" value="slim" checked><span>Slim line</span></label>
+        <label title="Text first, small logo below"><input type="radio" name="sigStyle" value="minimal"><span>Minimal</span></label>
+        <label title="Logo beside your name"><input type="radio" name="sigStyle" value="side"><span>Side logo</span></label>
+        <label title="No logo, short red accent"><input type="radio" name="sigStyle" value="text"><span>Text only</span></label>
+        <label title="Bold, full width"><input type="radio" name="sigStyle" value="banner"><span>Banner</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset id="logoSet">
+      <legend>Logo</legend>
+      <div class="pills">
+        <label><input type="radio" name="logoMode" value="default" checked><span>Curve logo</span></label>
+        <label><input type="radio" name="logoMode" value="upload"><span>Upload</span></label>
+        <label><input type="radio" name="logoMode" value="url"><span>Image link</span></label>
+      </div>
+      <div id="logoUploadBox" class="logo-opt" hidden>
+        <label>Image file (PNG or JPG)<input type="file" id="logoFile" accept="image/png,image/jpeg,image/gif,image/webp"></label>
+        <p class="note">Saved inside the signature. Outlook shows it; Gmail doesn't, so for Gmail use <b>Image link</b>.</p>
+      </div>
+      <div id="logoUrlBox" class="logo-opt" hidden>
+        <label>Image link<input name="logo" type="url" placeholder="https://www.example.com/logo.png" dir="ltr"></label>
+        <p class="note">Must be a public image online, so people who get your emails can see it.</p>
+      </div>
+      <p class="note" id="logoMsg" role="status"></p>
+    </fieldset>
+
+    <fieldset>
+      <legend>You</legend>
+      <label>Full name<input name="name" placeholder="Mahmoud Fahmy" required></label>
+      <label>Name in the other language<input name="name2" placeholder="محمود فهمي (optional)" dir="auto"></label>
+      <label>Job title<input name="title" placeholder="Oracle SCM Functional Consultant" dir="auto"></label>
+      <label>Department<input name="dept" placeholder="Optional" dir="auto"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Contact</legend>
+      <label>Mobile<input name="mobile" type="tel" placeholder="+20 10 1234 5678" dir="ltr"></label>
+      <div class="row">
+        <label>Office phone<input name="office" type="tel" placeholder="Optional" dir="ltr"></label>
+        <label>Ext.<input name="ext" placeholder="123" dir="ltr"></label>
+      </div>
+      <label>Work email<input name="email" type="email" placeholder="m.fahmy@curve-cmt.com" dir="ltr"></label>
+      <label>Other email<input name="email2" type="email" placeholder="Optional" dir="ltr"></label>
+      <label>LinkedIn<input name="linkedin" type="url" placeholder="https://www.linkedin.com/in/... (optional)" dir="ltr"></label>
+    </fieldset>
+
+    <details>
+      <summary>Company settings</summary>
+      <label>Company line<input name="company" value="Curve Modern Technology - CMT" dir="auto"></label>
+      <label>Website<input name="website" value="www.curve-cmt.com" dir="ltr"></label>
+    </details>
+  </form>
+
+  <section class="preview" aria-label="Preview">
+    <div class="preview-head">
+      <h2>Preview</h2>
+      <span class="note">Updates as you type</span>
+    </div>
+    <div class="stage">
+      <p id="fileWarn" class="warn" hidden>
+        Opened from your computer: people who get your emails won't see this logo. Use the website link,
+        or choose another <b>Logo</b> option.
+      </p>
       <div class="mail" id="demoMail">
         <div class="mail-head">
           <div class="mail-subject" id="demoSubject"></div>
           <div class="mail-meta">
             <div class="mail-avatar" id="demoAvatar"></div>
-            <div><b id="demoName"></b> <span id="demoEmail" dir="ltr"></span><br><span id="demoTo"></span></div>
+            <div><b id="demoName"></b> <span class="mail-email" id="demoEmail" dir="ltr"></span><br><span id="demoTo"></span></div>
           </div>
         </div>
         <div class="mail-body">
           <div id="demoText"></div>
-          <div id="sig"></div>
+          <div class="mail-sig" id="sig"></div>
         </div>
       </div>
-      <div class="actions">
-        <button class="primary" id="copySig" type="button">Copy signature</button>
-        <button id="copyHtml" type="button">Copy HTML code</button>
-        <button id="download" type="button">Download .htm</button>
-        <button id="reset" type="button">Clear form</button>
-      </div>
-      <div class="status" id="status" role="status" aria-live="polite"></div>
-      <p class="note">Your details stay in this browser only. Nothing is sent to any server.</p>
-    </section>
+    </div>
 
-    <!-- How to install -->
-    <section class="panel help" aria-label="How to add it">
-      <h2>How to add it to your email</h2>
-      <h3>Outlook (desktop, new or classic)</h3>
+    <div class="actions">
+      <button class="primary" id="copySig" type="button">Copy signature</button>
+      <button id="openFull" type="button">Full view</button>
+    </div>
+    <div class="links">
+      <button id="copyHtml" type="button">Copy HTML</button>
+      <button id="download" type="button">Download .htm</button>
+      <button id="reset" type="button">Clear form</button>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+
+    <details class="help">
+      <summary>How to add it to Outlook or Gmail</summary>
+      <h3>Outlook (desktop)</h3>
       <ol>
         <li>Click <b>Copy signature</b>.</li>
-        <li>Outlook: <code>File &gt; Options &gt; Mail &gt; Signatures</code> (new Outlook: <code>Settings &gt; Accounts &gt; Signatures</code>).</li>
-        <li>Click <b>New</b>, give it a name, click in the editor box and press <b>Ctrl+V</b>.</li>
-        <li>Choose it as the default for new messages and replies, then <b>Save</b>.</li>
+        <li><code>File &gt; Options &gt; Mail &gt; Signatures</code> (new Outlook: <code>Settings &gt; Accounts &gt; Signatures</code>).</li>
+        <li><b>New</b>, name it, click in the editor and press <b>Ctrl+V</b>.</li>
+        <li>Set it as default for new messages and replies, then <b>Save</b>.</li>
       </ol>
       <h3>Outlook on the web</h3>
-      <ol>
-        <li><code>Settings &gt; Account &gt; Signatures</code>, then paste with <b>Ctrl+V</b> and <b>Save</b>.</li>
-      </ol>
+      <ol><li><code>Settings &gt; Account &gt; Signatures</code>, paste with <b>Ctrl+V</b>, <b>Save</b>.</li></ol>
       <h3>Gmail</h3>
       <ol>
-        <li><code>Settings (gear) &gt; See all settings &gt; General &gt; Signature</code>.</li>
-        <li><b>Create new</b>, paste with <b>Ctrl+V</b>, scroll down and click <b>Save Changes</b>.</li>
+        <li><code>Settings &gt; See all settings &gt; General &gt; Signature</code>.</li>
+        <li><b>Create new</b>, paste with <b>Ctrl+V</b>, then <b>Save Changes</b> at the bottom.</li>
       </ol>
-      <p class="note">If the logo shows as a broken image after pasting, open this page from its published https link (not a saved copy) and copy again.</p>
-    </section>
-  </div>
+      <p class="note" style="margin-top:10px;">Your details stay in this browser. Nothing is sent to any server.</p>
+    </details>
+  </section>
 </main>
+
+<dialog id="full" aria-label="Full view of your email">
+  <div class="full-bar">
+    <h2>Full view</h2>
+    <div class="pills" role="group" aria-label="Screen size">
+      <label><input type="radio" name="fullSize" value="desktop" checked><span>Desktop</span></label>
+      <label><input type="radio" name="fullSize" value="phone"><span>Phone</span></label>
+    </div>
+    <button class="primary" id="fullCopy" type="button">Copy signature</button>
+    <button id="closeFull" type="button" aria-label="Close full view">Close</button>
+  </div>
+  <div class="full-stage desktop" id="fullStage"></div>
+</dialog>
 
 <script>
 (function () {
@@ -374,7 +397,7 @@
     var SEP = '<span style="color:#C4C7D4;">&nbsp;|&nbsp;</span>';
 
     function ltrSpan(inner) { return '<span dir="ltr">' + inner + '</span>'; }
-    function a(href, text) { return ltrSpan('<a href="' + esc(href) + '" style="' + link + '">' + esc(text) + '</a>'); }
+    function a(href, text) { return '<span dir="ltr" style="white-space:nowrap;"><a href="' + esc(href) + '" style="' + link + '">' + esc(text) + '</a></span>'; }
     function line(html, size, color, extra) {
       return '<div style="' + font + 'font-size:' + size + 'px;color:' + color + ';line-height:' + (size + 6) + 'px;text-align:' + align + ';' + (extra || '') + '">' + html + '</div>';
     }
@@ -430,7 +453,7 @@
         + (role ? line(role, 13, GREY) : '')
         + '</td>'
         + ((phones.length || online.length)
-          ? '<td style="padding-top:12px;padding-' + start + ':16px;vertical-align:middle;text-align:' + end + ';white-space:nowrap;">'
+          ? '<td style="padding-top:12px;padding-' + start + ':16px;vertical-align:middle;text-align:' + end + ';">'
             + (phones.length ? '<div style="' + font + 'font-size:12.5px;color:#333333;line-height:19px;">' + phones.join(SEP) + '</div>' : '')
             + (online.length ? '<div style="' + font + 'font-size:12.5px;color:#333333;line-height:19px;">' + online.join(SEP) + '</div>' : '')
             + '</td>'
@@ -603,6 +626,32 @@
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
   }
+
+  /* Full view: a large copy of the demo email in a modal, desktop or phone width */
+  var full = document.getElementById('full');
+  var fullStage = document.getElementById('fullStage');
+  function openFull() {
+    var copy = document.getElementById('demoMail').cloneNode(true);
+    copy.removeAttribute('id');
+    var ids = copy.querySelectorAll('[id]');
+    for (var i = 0; i < ids.length; i++) ids[i].removeAttribute('id');
+    fullStage.innerHTML = '';
+    fullStage.appendChild(copy);
+    if (full.showModal) full.showModal(); else full.setAttribute('open', '');
+  }
+  function closeFull() { if (full.close) full.close(); else full.removeAttribute('open'); }
+  document.getElementById('openFull').addEventListener('click', openFull);
+  document.getElementById('closeFull').addEventListener('click', closeFull);
+  document.getElementById('fullCopy').addEventListener('click', function () {
+    var btn = this;
+    copyRich();
+    btn.textContent = 'Copied ✓';
+    setTimeout(function () { btn.textContent = 'Copy signature'; }, 2000);
+  });
+  full.addEventListener('click', function (e) { if (e.target === full) closeFull(); }); // click on the dimmed area
+  full.addEventListener('change', function (e) {
+    if (e.target.name === 'fullSize') fullStage.className = 'full-stage ' + e.target.value;
+  });
 
   form.addEventListener('input', render);
   form.addEventListener('change', render);
