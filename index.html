@@ -73,7 +73,12 @@
   .seg { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .seg label { flex: 1; margin: 0; text-align: center; cursor: pointer; }
   .seg input { display: none; }
-  .seg span { display: block; padding: 8px; font-weight: 600; color: var(--muted); }
+  .seg span { display: block; padding: 8px 4px; font-weight: 600; color: var(--muted); }
+  .logo-opt { margin-top: 10px; }
+  .logo-opt .note, #logoMsg { margin: -4px 0 0; }
+  #logoMsg:empty { display: none; }
+  #logoMsg { margin-top: 8px; color: var(--warn-text); }
+  input[type="file"] { padding: 6px; }
   .seg input:checked + span { background: var(--navy); color: #fff; }
   details { margin-top: 6px; }
   summary { cursor: pointer; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
@@ -123,6 +128,25 @@
       </fieldset>
 
       <fieldset>
+        <legend>Logo</legend>
+        <div class="seg">
+          <label><input type="radio" name="logoMode" value="default" checked><span>Curve logo</span></label>
+          <label><input type="radio" name="logoMode" value="upload"><span>Upload</span></label>
+          <label><input type="radio" name="logoMode" value="url"><span>Image link</span></label>
+        </div>
+        <div id="logoUploadBox" class="logo-opt" hidden>
+          <label>Image file (PNG or JPG)<input type="file" id="logoFile" accept="image/png,image/jpeg,image/gif,image/webp"></label>
+          <p class="note">The image is saved inside the signature. Outlook shows it; Gmail does not show uploaded
+            images in signatures, so for Gmail use <b>Image link</b>.</p>
+        </div>
+        <div id="logoUrlBox" class="logo-opt" hidden>
+          <label>Image link<input name="logo" type="url" placeholder="https://www.example.com/logo.png" dir="ltr"></label>
+          <p class="note">The image must be online and public (for example on your company website), so people who get your emails can see it.</p>
+        </div>
+        <p class="note" id="logoMsg" role="status"></p>
+      </fieldset>
+
+      <fieldset>
         <legend>Identity</legend>
         <label>Full name *<input name="name" placeholder="Mahmoud Fahmy" required></label>
         <label>Name in the other language (optional)<input name="name2" placeholder="محمود فهمي" dir="auto"></label>
@@ -146,7 +170,6 @@
         <summary>Company settings</summary>
         <label>Company line<input name="company" value="Curve Modern Technology - CMT" dir="auto"></label>
         <label>Website<input name="website" value="www.curve-cmt.com" dir="ltr"></label>
-        <label>Logo URL (leave empty to use this site's logo)<input name="logo" type="url" placeholder="https://..." dir="ltr"></label>
       </details>
     </form>
   </section>
@@ -157,8 +180,7 @@
       <h2>Live preview</h2>
       <div id="fileWarn" class="warn" hidden>
         This page is open from your computer, so the logo link points to a file on this PC and people who
-        get your emails won't see it. Use the published website link, or enter a public
-        <b>Logo URL</b> under Company settings.
+        get your emails won't see it. Use the published website link, or choose another option under <b>Logo</b>.
       </div>
       <div class="preview-box"><div id="sig"></div></div>
       <div class="actions">
@@ -203,7 +225,9 @@
   var sigBox = document.getElementById('sig');
   var statusEl = document.getElementById('status');
 
-  if (location.protocol === 'file:') document.getElementById('fileWarn').hidden = false;
+  var LOGO_STORE = 'curve-signature-logo';
+  var BOX_W = 140, BOX_H = 80;
+  var logo = { data: '', dims: { w: BOX_W, h: BOX_H }, measured: '', error: '' };
 
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -222,10 +246,67 @@
   }
   function telHref(p) { return 'tel:' + p.replace(/[^\d+]/g, ''); }
 
+  function logoMode() { return val('logoMode') || 'default'; }
+  function defaultLogo() { return new URL('logo.png', location.href).href; }
+  function isWebLink(s) { return /^https?:\/\/\S+$/i.test(s); }
   function logoUrl() {
-    var custom = val('logo');
-    if (custom) return custom;
-    return new URL('logo.png', location.href).href;
+    var m = logoMode();
+    if (m === 'upload' && logo.data) return logo.data;
+    if (m === 'url' && isWebLink(val('logo'))) return val('logo');
+    return defaultLogo();
+  }
+  function fit(w, h) {
+    var s = Math.min(BOX_W / w, BOX_H / h);
+    return { w: Math.max(1, Math.round(w * s)), h: Math.max(1, Math.round(h * s)) };
+  }
+  function setLogoMsg(msg) { document.getElementById('logoMsg').textContent = msg; }
+
+  /* Outlook needs a real width/height on <img>: read the image's own size and fit it in 140x80 */
+  function measure() {
+    var src = logoUrl();
+    if (src === logo.measured) return;
+    logo.measured = src;
+    if (src === defaultLogo()) { logo.dims = { w: BOX_W, h: BOX_H }; return; }
+    var img = new Image();
+    img.onload = function () {
+      if (logo.measured !== src) return;
+      logo.dims = fit(img.naturalWidth, img.naturalHeight);
+      render();
+    };
+    img.onerror = function () {
+      if (logo.measured !== src) return;
+      logo.error = src;
+      render();
+    };
+    img.src = src;
+  }
+
+  function readLogoFile(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { setLogoMsg('Please choose an image file (PNG or JPG).'); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        /* 3x the shown size keeps it sharp on high-resolution screens and keeps the email light */
+        var s = Math.min(1, (BOX_W * 3) / img.naturalWidth, (BOX_H * 3) / img.naturalHeight);
+        var c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(img.naturalWidth * s));
+        c.height = Math.max(1, Math.round(img.naturalHeight * s));
+        var ctx = c.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        var data = c.toDataURL('image/png');
+        if (data.length > 150000) data = c.toDataURL('image/jpeg', 0.88);
+        logo.data = data;
+        try { localStorage.setItem(LOGO_STORE, data); } catch (e) {}
+        render();
+      };
+      img.onerror = function () { setLogoMsg('This image could not be read. Try a PNG or JPG file.'); };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
   }
 
   /* Email-safe HTML: tables + inline styles only (Outlook / Gmail strip <style>) */
@@ -261,7 +342,9 @@
     if (d.website) rows += row(L.web, ltrSpan('<a href="' + esc(siteUrl(d.website)) + '" style="' + link + '">' + esc(d.website) + '</a>'));
     if (d.linkedin) rows += row(L.linkedin, ltrSpan('<a href="' + esc(siteUrl(d.linkedin)) + '" style="' + link + '">' + esc(d.linkedin.replace(/^https?:\/\/(www\.)?/i, '')) + '</a>'));
 
-    var logoImg = '<img src="' + esc(logoUrl()) + '" width="140" height="80" alt="Curve - CMT" style="display:block;border:0;width:140px;height:80px;">';
+    var dims = logo.dims;
+    var logoImg = '<img src="' + esc(logoUrl()) + '" width="' + dims.w + '" height="' + dims.h + '" alt="' + esc(d.company || 'Logo')
+      + '" style="display:block;border:0;width:' + dims.w + 'px;height:' + dims.h + 'px;">';
     if (d.website) logoImg = '<a href="' + esc(siteUrl(d.website)) + '" style="text-decoration:none;">' + logoImg + '</a>';
 
     var logoCell = '<td style="vertical-align:middle;' + (rtl ? 'padding-left:16px;' : 'padding-right:16px;') + '">' + logoImg + '</td>';
@@ -284,6 +367,16 @@
   }
 
   function render() {
+    var m = logoMode();
+    document.getElementById('logoUploadBox').hidden = m !== 'upload';
+    document.getElementById('logoUrlBox').hidden = m !== 'url';
+    document.getElementById('fileWarn').hidden = !(location.protocol === 'file:' && logoUrl() === defaultLogo());
+    measure();
+    var src = logoUrl();
+    if (m === 'upload' && !logo.data) setLogoMsg('Choose an image file. The Curve logo is used until you do.');
+    else if (m === 'url' && !isWebLink(val('logo'))) setLogoMsg('Paste a link that starts with https://. The Curve logo is used until you do.');
+    else if (logo.error && logo.error === src) setLogoMsg('This image could not be loaded. Check that the link opens the image in your browser.');
+    else setLogoMsg('');
     sigBox.innerHTML = buildSignature();
     save();
   }
@@ -300,6 +393,7 @@
   }
   function load() {
     var data = null;
+    try { logo.data = localStorage.getItem(LOGO_STORE) || ''; } catch (e) {}
     try { data = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch (e) {}
     if (!data) return;
     for (var i = 0; i < form.elements.length; i++) {
@@ -359,13 +453,15 @@
 
   form.addEventListener('input', render);
   form.addEventListener('change', render);
+  document.getElementById('logoFile').addEventListener('change', function () { readLogoFile(this.files && this.files[0]); });
   document.getElementById('copySig').addEventListener('click', copyRich);
   document.getElementById('copyHtml').addEventListener('click', copyHtml);
   document.getElementById('download').addEventListener('click', download);
   document.getElementById('reset').addEventListener('click', function () {
-    var keep = { company: val('company'), website: val('website'), logo: val('logo') };
+    var keep = { company: val('company'), website: val('website'), logo: val('logo'), logoMode: logoMode() };
     form.reset();
     form.elements.company.value = keep.company; form.elements.website.value = keep.website; form.elements.logo.value = keep.logo;
+    form.querySelector('input[name=logoMode][value="' + keep.logoMode + '"]').checked = true;
     render();
   });
 
