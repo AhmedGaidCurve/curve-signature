@@ -109,7 +109,7 @@
     <img src="logo.png" alt="Curve">
     <div>
       <h1>Email Signature Generator</h1>
-      <p>Curve Modern Technology - CMT &middot; v2</p>
+      <p>Curve Modern Technology - CMT &middot; v3</p>
     </div>
   </div>
 </header>
@@ -124,6 +124,14 @@
         <div class="seg">
           <label><input type="radio" name="dir" value="ltr" checked><span>English</span></label>
           <label><input type="radio" name="dir" value="rtl"><span>العربية</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Style</legend>
+        <div class="seg">
+          <label><input type="radio" name="sigStyle" value="compact" checked><span>Compact</span></label>
+          <label><input type="radio" name="sigStyle" value="banner"><span>Full-width banner</span></label>
         </div>
       </fieldset>
 
@@ -309,6 +317,26 @@
     reader.readAsDataURL(file);
   }
 
+  /* Full-width banner: logo | name | contacts, with a navy strip (company + website) along the bottom */
+  function buildBanner(d, align, font, logoImg, identity, contacts) {
+    var start = d.dir === 'rtl' ? 'right' : 'left';
+    var cell = 'vertical-align:middle;padding:16px 20px;text-align:' + align + ';';
+    var logoW = logo.dims.w + 40;
+    var strip = [];
+    if (d.company) strip.push(esc(d.company));
+    if (d.website) strip.push('<a href="' + esc(siteUrl(d.website)) + '" style="color:#ffffff;text-decoration:none;"><span dir="ltr">' + esc(d.website) + '</span></a>');
+    return '<table width="100%" cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="width:100%;border-collapse:collapse;' + font
+      + 'background-color:#ffffff;border:1px solid #E3E5EE;border-top:4px solid ' + NAVY + ';">'
+      + '<tr>'
+      + '<td width="' + logoW + '" style="' + cell + 'width:' + logoW + 'px;">' + logoImg + '</td>'
+      + '<td style="' + cell + 'border-' + start + ':2px solid ' + NAVY + ';">' + identity + '</td>'
+      + (contacts ? '<td style="' + cell + 'border-' + start + ':1px solid #E3E5EE;">' + contacts + '</td>' : '')
+      + '</tr>'
+      + '<tr><td colspan="3" style="background-color:' + NAVY + ';padding:7px 20px;' + font + 'font-size:12px;line-height:16px;color:#ffffff;text-align:' + align
+      + ';border-bottom:3px solid ' + RED + ';">' + (strip.length ? strip.join(' &nbsp;|&nbsp; ') : '&nbsp;') + '</td></tr>'
+      + '</table>';
+  }
+
   /* Email-safe HTML: tables + inline styles only (Outlook / Gmail strip <style>) */
   function buildSignature() {
     var d = {
@@ -328,7 +356,7 @@
       return '<tr>'
         + '<td style="' + font + 'font-size:12px;font-weight:700;color:' + (color || NAVY) + ';padding:1px 0;'
         + (rtl ? 'padding-left:10px;' : 'padding-right:10px;') + 'white-space:nowrap;vertical-align:top;text-align:' + align + ';">' + esc(label) + '</td>'
-        + '<td style="' + font + 'font-size:13px;color:#333333;padding:1px 0;vertical-align:top;text-align:' + align + ';">' + valueHtml + '</td>'
+        + '<td style="' + font + 'font-size:13px;color:#333333;padding:1px 0;vertical-align:top;white-space:nowrap;text-align:' + align + ';">' + valueHtml + '</td>'
         + '</tr>';
     }
     function ltrSpan(inner) { return '<span dir="ltr">' + inner + '</span>'; }
@@ -350,14 +378,18 @@
     var logoCell = '<td style="vertical-align:middle;' + (rtl ? 'padding-left:16px;' : 'padding-right:16px;') + '">' + logoImg + '</td>';
     var sideBorder = rtl ? 'border-right:2px solid ' + NAVY + ';padding-right:16px;' : 'border-left:2px solid ' + NAVY + ';padding-left:16px;';
 
-    var text = '<td style="vertical-align:middle;' + sideBorder + 'text-align:' + align + ';">'
-      + '<div style="' + font + 'font-size:19px;font-weight:700;color:' + NAVY + ';line-height:24px;">' + esc(d.name || (rtl ? 'الاسم' : 'Your Name')) + '</div>'
+    var identity = '<div style="' + font + 'font-size:19px;font-weight:700;color:' + NAVY + ';line-height:24px;">' + esc(d.name || (rtl ? 'الاسم' : 'Your Name')) + '</div>'
       + (d.name2 ? '<div style="' + font + 'font-size:13px;color:#777777;line-height:18px;">' + esc(d.name2) + '</div>' : '')
       + (d.title ? '<div style="' + font + 'font-size:14px;font-weight:600;color:#555555;line-height:20px;padding-top:4px;">' + esc(d.title) + '</div>' : '')
       + (d.dept ? '<div style="' + font + 'font-size:13px;color:#777777;line-height:18px;">' + esc(d.dept) + '</div>' : '')
       + (d.company ? '<div style="' + font + 'font-size:12px;color:#777777;line-height:18px;">' + esc(d.company) + '</div>' : '')
-      + (rows ? '<div style="height:8px;line-height:8px;font-size:8px;">&nbsp;</div>'
-        + '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;">' + rows + '</table>' : '')
+      ;
+    var contacts = rows ? '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;">' + rows + '</table>' : '';
+
+    if (val('sigStyle') === 'banner') return buildBanner(d, align, font, logoImg, identity, contacts);
+
+    var text = '<td style="vertical-align:middle;' + sideBorder + 'text-align:' + align + ';">' + identity
+      + (contacts ? '<div style="height:8px;line-height:8px;font-size:8px;">&nbsp;</div>' + contacts : '')
       + '</td>';
 
     return '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;' + font + '">'
