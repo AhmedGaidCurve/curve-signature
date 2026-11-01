@@ -6,6 +6,7 @@
 <title>Curve Signature Generator</title>
 <meta name="description" content="Create your Curve Modern Technology (CMT) email signature for Outlook and Gmail.">
 <link rel="icon" href="logo.png">
+<script>try { var t = localStorage.getItem('curve-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}</script>
 <style>
   :root {
     --navy: #2B2E73;
@@ -37,9 +38,19 @@
 
   header { border-bottom: 1px solid var(--border); }
   header .wrap { display: flex; align-items: center; gap: 12px; height: 60px; }
-  header img { height: 30px; background: #fff; border-radius: 4px; padding: 2px 4px; }
+  header img { height: 30px; }
   header h1 { margin: 0; font-size: 16px; font-weight: 600; }
   header .ver { margin-left: auto; font-size: 12px; color: var(--muted); }
+  /* Logo + theme icon follow the theme */
+  .logo-dark, .i-sun { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .logo-light, :root:not([data-theme="light"]) .i-moon { display: none; }
+    :root:not([data-theme="light"]) .logo-dark, :root:not([data-theme="light"]) .i-sun { display: inline; }
+  }
+  :root[data-theme="dark"] .logo-light, :root[data-theme="dark"] .i-moon { display: none; }
+  :root[data-theme="dark"] .logo-dark, :root[data-theme="dark"] .i-sun { display: inline; }
+  .theme-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; font-weight: 500; font-size: 13px; }
+  .theme-btn svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
   main.wrap { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 48px; padding-top: 28px; padding-bottom: 48px; }
   @media (max-width: 880px) { main.wrap { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
@@ -140,9 +151,14 @@
 <body>
 <header>
   <div class="wrap">
-    <img src="logo.png" alt="Curve">
+    <img class="logo-light" src="logo.png" alt="Curve">
+    <img class="logo-dark" src="logo-dark.png" alt="Curve">
     <h1>Email signature</h1>
-    <span class="ver">v6</span>
+    <span class="ver">v7</span>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><g class="i-sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></g></svg>
+      <span id="themeLabel">Dark</span>
+    </button>
   </div>
 </header>
 
@@ -626,6 +642,27 @@
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
   }
+
+  /* Light / dark switch - follows the system until the user picks one */
+  var root = document.documentElement;
+  var darkMq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    return t ? t === 'dark' : !!(darkMq && darkMq.matches);
+  }
+  function syncThemeBtn() {
+    var dark = isDark();
+    document.getElementById('themeLabel').textContent = dark ? 'Light' : 'Dark';
+    document.getElementById('themeBtn').setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  document.getElementById('themeBtn').addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('curve-theme', next); } catch (e) {}
+    syncThemeBtn();
+  });
+  if (darkMq && darkMq.addEventListener) darkMq.addEventListener('change', syncThemeBtn);
+  syncThemeBtn();
 
   /* Full view: a large copy of the demo email in a modal, desktop or phone width */
   var full = document.getElementById('full');

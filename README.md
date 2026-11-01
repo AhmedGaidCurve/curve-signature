@@ -14,6 +14,7 @@ ready-made email signature, with the Curve logo, into Outlook or Gmail.
 |------|---------|
 | `index.html` | The generator page |
 | `logo.png` | Curve logo (420×240, shown at 140×80). The signature links to it, so keep it in the published site. |
+| `logo-dark.png` | Light-on-transparent version of the logo, used in the page header in dark mode |
 
 ## Publish on GitHub Pages
 
