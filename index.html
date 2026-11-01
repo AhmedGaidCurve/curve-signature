@@ -82,10 +82,29 @@
   .seg input:checked + span { background: var(--navy); color: #fff; }
   details { margin-top: 6px; }
   summary { cursor: pointer; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-  .preview-box {
-    background: #ffffff; border: 1px dashed var(--border); border-radius: 8px;
-    padding: 24px 16px; overflow-x: auto;
+  .styles { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+  .styles label { margin: 0; cursor: pointer; }
+  .styles input { display: none; }
+  .styles span {
+    display: block; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+    font-weight: 600; color: var(--text); font-size: 13px; line-height: 1.3;
   }
+  .styles small { display: block; font-weight: 400; color: var(--muted); font-size: 11.5px; }
+  .styles input:checked + span { border-color: var(--navy); box-shadow: inset 0 0 0 1px var(--navy); background: var(--focus); }
+  /* Demo email - always light, like a real email */
+  .mail { background: #ffffff; color: #333333; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .mail-head { padding: 14px 18px; border-bottom: 1px solid #eceef3; }
+  .mail-subject { font-size: 17px; font-weight: 600; color: #1d1f33; margin-bottom: 8px; }
+  .mail-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #6b6f85; }
+  .mail-meta b { color: #1d1f33; }
+  #demoEmail { unicode-bidi: isolate; }
+  .mail-avatar {
+    width: 34px; height: 34px; flex: none; border-radius: 50%; background: var(--navy); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;
+  }
+  .mail-body { padding: 16px 18px 22px; font-size: 14px; line-height: 1.6; overflow-x: auto; }
+  .mail-body p { margin: 0 0 10px; }
+  #sig { margin-top: 16px; }
   .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 6px; }
   button {
     font: inherit; font-weight: 600; border-radius: 8px; padding: 10px 16px; cursor: pointer;
@@ -109,7 +128,7 @@
     <img src="logo.png" alt="Curve">
     <div>
       <h1>Email Signature Generator</h1>
-      <p>Curve Modern Technology - CMT &middot; v3</p>
+      <p>Curve Modern Technology - CMT &middot; v4</p>
     </div>
   </div>
 </header>
@@ -129,13 +148,16 @@
 
       <fieldset>
         <legend>Style</legend>
-        <div class="seg">
-          <label><input type="radio" name="sigStyle" value="compact" checked><span>Compact</span></label>
-          <label><input type="radio" name="sigStyle" value="banner"><span>Full-width banner</span></label>
+        <div class="styles">
+          <label><input type="radio" name="sigStyle" value="slim" checked><span>Slim line<small>Full width, one thin line</small></span></label>
+          <label><input type="radio" name="sigStyle" value="minimal"><span>Minimal<small>Text, small logo below</small></span></label>
+          <label><input type="radio" name="sigStyle" value="side"><span>Side logo<small>Logo beside your name</small></span></label>
+          <label><input type="radio" name="sigStyle" value="text"><span>Text only<small>No logo, red accent</small></span></label>
+          <label><input type="radio" name="sigStyle" value="banner"><span>Banner<small>Bold, full width</small></span></label>
         </div>
       </fieldset>
 
-      <fieldset>
+      <fieldset id="logoSet">
         <legend>Logo</legend>
         <div class="seg">
           <label><input type="radio" name="logoMode" value="default" checked><span>Curve logo</span></label>
@@ -185,12 +207,24 @@
   <div class="right">
     <!-- Preview -->
     <section class="panel" aria-label="Preview">
-      <h2>Live preview</h2>
+      <h2>Live preview - how your email will look</h2>
       <div id="fileWarn" class="warn" hidden>
         This page is open from your computer, so the logo link points to a file on this PC and people who
         get your emails won't see it. Use the published website link, or choose another option under <b>Logo</b>.
       </div>
-      <div class="preview-box"><div id="sig"></div></div>
+      <div class="mail" id="demoMail">
+        <div class="mail-head">
+          <div class="mail-subject" id="demoSubject"></div>
+          <div class="mail-meta">
+            <div class="mail-avatar" id="demoAvatar"></div>
+            <div><b id="demoName"></b> <span id="demoEmail" dir="ltr"></span><br><span id="demoTo"></span></div>
+          </div>
+        </div>
+        <div class="mail-body">
+          <div id="demoText"></div>
+          <div id="sig"></div>
+        </div>
+      </div>
       <div class="actions">
         <button class="primary" id="copySig" type="button">Copy signature</button>
         <button id="copyHtml" type="button">Copy HTML code</button>
@@ -317,9 +351,137 @@
     reader.readAsDataURL(file);
   }
 
-  /* Full-width banner: logo | name | contacts, with a navy strip (company + website) along the bottom */
-  function buildBanner(d, align, font, logoImg, identity, contacts) {
-    var start = d.dir === 'rtl' ? 'right' : 'left';
+  /* Email-safe HTML: tables + inline styles only (Outlook / Gmail strip <style>).
+     Styles: slim (default), minimal, side, text, banner */
+  function buildSignature() {
+    var d = {
+      dir: val('dir') || 'ltr', name: val('name'), name2: val('name2'), title: val('title'), dept: val('dept'),
+      mobile: val('mobile'), office: val('office'), ext: val('ext'), email: val('email'), email2: val('email2'),
+      linkedin: val('linkedin'), company: val('company'), website: val('website')
+    };
+    var style = val('sigStyle') || 'slim';
+    var rtl = d.dir === 'rtl';
+    var L = rtl
+      ? { mobile: 'موبايل', office: 'هاتف', ext: 'تحويلة', email: 'البريد', web: 'الموقع', linkedin: 'لينكد إن' }
+      : { mobile: 'Mobile', office: 'Office', ext: 'Ext.', email: 'Email', web: 'Web', linkedin: 'LinkedIn' };
+    var S = rtl ? L : { mobile: 'M', office: 'T', ext: 'Ext.', email: 'E', web: 'W', linkedin: 'in' };
+    var align = rtl ? 'right' : 'left';
+    var start = rtl ? 'right' : 'left';
+    var end = rtl ? 'left' : 'right';
+    var font = "font-family:'Segoe UI',Tahoma,Arial,sans-serif;";
+    var link = 'color:#333333;text-decoration:none;';
+    var GREY = '#6b6f85';
+    var SEP = '<span style="color:#C4C7D4;">&nbsp;|&nbsp;</span>';
+
+    function ltrSpan(inner) { return '<span dir="ltr">' + inner + '</span>'; }
+    function a(href, text) { return ltrSpan('<a href="' + esc(href) + '" style="' + link + '">' + esc(text) + '</a>'); }
+    function line(html, size, color, extra) {
+      return '<div style="' + font + 'font-size:' + size + 'px;color:' + color + ';line-height:' + (size + 6) + 'px;text-align:' + align + ';' + (extra || '') + '">' + html + '</div>';
+    }
+
+    /* Contact pieces, reused by every style */
+    var c = {};
+    if (d.mobile) c.mobile = a(telHref(d.mobile), d.mobile);
+    if (d.office) c.office = a(telHref(d.office), d.office) + (d.ext ? ' ' + esc(L.ext) + ' ' + ltrSpan(esc(d.ext)) : '');
+    if (d.email) c.email = a('mailto:' + d.email, d.email);
+    if (d.email2) c.email2 = a('mailto:' + d.email2, d.email2);
+    if (d.website) c.web = a(siteUrl(d.website), d.website);
+    if (d.linkedin) c.linkedin = a(siteUrl(d.linkedin), d.linkedin.replace(/^https?:\/\/(www\.)?/i, ''));
+    var phones = [c.mobile, c.office].filter(Boolean);
+    var online = [c.email, c.email2, c.web, c.linkedin].filter(Boolean);
+
+    function rowsTable(labels, labelSize) {
+      function row(label, html, color) {
+        return '<tr>'
+          + '<td style="' + font + 'font-size:' + labelSize + 'px;font-weight:700;color:' + (color || NAVY) + ';padding:1px 0;padding-' + end + ':10px;'
+          + 'white-space:nowrap;vertical-align:top;text-align:' + align + ';">' + esc(label) + '</td>'
+          + '<td style="' + font + 'font-size:13px;color:#333333;padding:1px 0;vertical-align:top;white-space:nowrap;text-align:' + align + ';">' + html + '</td>'
+          + '</tr>';
+      }
+      var r = '';
+      if (c.mobile) r += row(labels.mobile, c.mobile);
+      if (c.office) r += row(labels.office, c.office);
+      if (c.email) r += row(labels.email, c.email, style === 'banner' ? RED : '');
+      if (c.email2) r += row(labels.email, c.email2);
+      if (c.web) r += row(labels.web, c.web);
+      if (c.linkedin) r += row(labels.linkedin, c.linkedin);
+      return r ? '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;">' + r + '</table>' : '';
+    }
+
+    function logoImg(scale) {
+      var w = Math.round(logo.dims.w * scale), h = Math.round(logo.dims.h * scale);
+      var img = '<img src="' + esc(logoUrl()) + '" width="' + w + '" height="' + h + '" alt="' + esc(d.company || 'Logo')
+        + '" style="display:block;border:0;width:' + w + 'px;height:' + h + 'px;">';
+      return d.website ? '<a href="' + esc(siteUrl(d.website)) + '" style="text-decoration:none;">' + img + '</a>' : img;
+    }
+
+    var nameText = esc(d.name || (rtl ? 'الاسم' : 'Your Name'));
+    var role = [d.title, d.dept].filter(Boolean).map(esc).join(' &middot; ');
+    var table = '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;' + font + '"';
+
+    /* Slim line: thin rule across the email, small logo | name + role | contacts on the far side */
+    if (style === 'slim') {
+      return '<table width="100%" cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="width:100%;border-collapse:collapse;' + font + 'border-top:1px solid #DCDFE8;">'
+        + '<tr>'
+        + '<td style="padding-top:12px;padding-' + end + ':16px;vertical-align:middle;width:1%;">' + logoImg(0.5) + '</td>'
+        + '<td style="padding-top:12px;vertical-align:middle;text-align:' + align + ';">'
+        + line('<b style="font-size:15px;color:' + NAVY + ';">' + nameText + '</b>'
+          + (d.name2 ? '&nbsp;&nbsp;<span style="color:' + GREY + ';">' + esc(d.name2) + '</span>' : ''), 13, '#333333')
+        + (role ? line(role, 13, GREY) : '')
+        + '</td>'
+        + ((phones.length || online.length)
+          ? '<td style="padding-top:12px;padding-' + start + ':16px;vertical-align:middle;text-align:' + end + ';white-space:nowrap;">'
+            + (phones.length ? '<div style="' + font + 'font-size:12.5px;color:#333333;line-height:19px;">' + phones.join(SEP) + '</div>' : '')
+            + (online.length ? '<div style="' + font + 'font-size:12.5px;color:#333333;line-height:19px;">' + online.join(SEP) + '</div>' : '')
+            + '</td>'
+          : '')
+        + '</tr></table>';
+    }
+
+    /* Minimal: text first, one contact line, small logo underneath */
+    if (style === 'minimal') {
+      return '<div dir="' + d.dir + '" style="text-align:' + align + ';">'
+        + line('<b>' + nameText + '</b>', 16, NAVY)
+        + (d.name2 ? line(esc(d.name2), 13, GREY) : '')
+        + (role ? line(role, 13, GREY) : '')
+        + (phones.length || online.length ? line(phones.concat(online).join(SEP), 13, '#333333', 'padding-top:6px;') : '')
+        + '<div style="padding-top:10px;' + (rtl ? 'float:right;' : '') + '">' + logoImg(0.65) + '</div>'
+        + (rtl ? '<div style="clear:both;"></div>' : '')
+        + '</div>';
+    }
+
+    /* Side logo: logo | thin grey line | name, role, contacts */
+    if (style === 'side') {
+      return table + '><tr>'
+        + '<td style="vertical-align:middle;padding-' + end + ':16px;">' + logoImg(0.75) + '</td>'
+        + '<td style="vertical-align:middle;border-' + start + ':1px solid #DCDFE8;padding-' + start + ':16px;text-align:' + align + ';">'
+        + line('<b>' + nameText + '</b>', 16, NAVY)
+        + (d.name2 ? line(esc(d.name2), 13, GREY) : '')
+        + (role ? line(role, 13, GREY) : '')
+        + (phones.length ? line(phones.join(SEP), 13, '#333333', 'padding-top:4px;') : '')
+        + (online.length ? line(online.join(SEP), 13, '#333333') : '')
+        + '</td></tr></table>';
+    }
+
+    /* Text only: short red accent, name, role, labelled contacts - no logo */
+    if (style === 'text') {
+      var who = [d.title, d.dept, d.company].filter(Boolean).map(esc).join(' &middot; ');
+      return '<div dir="' + d.dir + '" style="text-align:' + align + ';">'
+        + '<div style="width:28px;height:3px;line-height:3px;font-size:3px;background-color:' + RED + ';margin-bottom:10px;' + (rtl ? 'margin-left:auto;' : '') + '">&nbsp;</div>'
+        + line('<b>' + nameText + '</b>', 16, NAVY)
+        + (d.name2 ? line(esc(d.name2), 13, GREY) : '')
+        + (who ? line(who, 13, GREY, 'padding-bottom:8px;') : '')
+        + rowsTable(S, 12.5)
+        + '</div>';
+    }
+
+    /* Banner: full width - logo | name | contacts, navy strip (company + website) along the bottom */
+    var identity = line('<b>' + nameText + '</b>', 19, NAVY)
+      + (d.name2 ? line(esc(d.name2), 13, '#777777') : '')
+      + (d.title ? line('<b>' + esc(d.title) + '</b>', 14, '#555555', 'padding-top:4px;') : '')
+      + (d.dept ? line(esc(d.dept), 13, '#777777') : '')
+      + (d.company ? line(esc(d.company), 12, '#777777') : '');
+    var contacts = rowsTable(L, 12);
     var cell = 'vertical-align:middle;padding:16px 20px;text-align:' + align + ';';
     var logoW = logo.dims.w + 40;
     var strip = [];
@@ -328,7 +490,7 @@
     return '<table width="100%" cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="width:100%;border-collapse:collapse;' + font
       + 'background-color:#ffffff;border:1px solid #E3E5EE;border-top:4px solid ' + NAVY + ';">'
       + '<tr>'
-      + '<td width="' + logoW + '" style="' + cell + 'width:' + logoW + 'px;">' + logoImg + '</td>'
+      + '<td width="' + logoW + '" style="' + cell + 'width:' + logoW + 'px;">' + logoImg(1) + '</td>'
       + '<td style="' + cell + 'border-' + start + ':2px solid ' + NAVY + ';">' + identity + '</td>'
       + (contacts ? '<td style="' + cell + 'border-' + start + ':1px solid #E3E5EE;">' + contacts + '</td>' : '')
       + '</tr>'
@@ -337,69 +499,26 @@
       + '</table>';
   }
 
-  /* Email-safe HTML: tables + inline styles only (Outlook / Gmail strip <style>) */
-  function buildSignature() {
-    var d = {
-      dir: val('dir') || 'ltr', name: val('name'), name2: val('name2'), title: val('title'), dept: val('dept'),
-      mobile: val('mobile'), office: val('office'), ext: val('ext'), email: val('email'), email2: val('email2'),
-      linkedin: val('linkedin'), company: val('company'), website: val('website')
-    };
-    var rtl = d.dir === 'rtl';
-    var L = rtl
-      ? { mobile: 'موبايل', office: 'هاتف', ext: 'تحويلة', email: 'البريد', web: 'الموقع', linkedin: 'لينكد إن' }
-      : { mobile: 'Mobile', office: 'Office', ext: 'Ext.', email: 'Email', web: 'Web', linkedin: 'LinkedIn' };
-    var align = rtl ? 'right' : 'left';
-    var font = "font-family:'Segoe UI',Tahoma,Arial,sans-serif;";
-    var link = 'color:#333333;text-decoration:none;';
-
-    function row(label, valueHtml, color) {
-      return '<tr>'
-        + '<td style="' + font + 'font-size:12px;font-weight:700;color:' + (color || NAVY) + ';padding:1px 0;'
-        + (rtl ? 'padding-left:10px;' : 'padding-right:10px;') + 'white-space:nowrap;vertical-align:top;text-align:' + align + ';">' + esc(label) + '</td>'
-        + '<td style="' + font + 'font-size:13px;color:#333333;padding:1px 0;vertical-align:top;white-space:nowrap;text-align:' + align + ';">' + valueHtml + '</td>'
-        + '</tr>';
-    }
-    function ltrSpan(inner) { return '<span dir="ltr">' + inner + '</span>'; }
-
-    var rows = '';
-    if (d.mobile) rows += row(L.mobile, ltrSpan('<a href="' + esc(telHref(d.mobile)) + '" style="' + link + '">' + esc(d.mobile) + '</a>'));
-    if (d.office) rows += row(L.office, ltrSpan('<a href="' + esc(telHref(d.office)) + '" style="' + link + '">' + esc(d.office) + '</a>')
-      + (d.ext ? ' &nbsp;' + esc(L.ext) + ' ' + ltrSpan(esc(d.ext)) : ''));
-    if (d.email) rows += row(L.email, ltrSpan('<a href="mailto:' + esc(d.email) + '" style="' + link + '">' + esc(d.email) + '</a>'), RED);
-    if (d.email2) rows += row(L.email, ltrSpan('<a href="mailto:' + esc(d.email2) + '" style="' + link + '">' + esc(d.email2) + '</a>'));
-    if (d.website) rows += row(L.web, ltrSpan('<a href="' + esc(siteUrl(d.website)) + '" style="' + link + '">' + esc(d.website) + '</a>'));
-    if (d.linkedin) rows += row(L.linkedin, ltrSpan('<a href="' + esc(siteUrl(d.linkedin)) + '" style="' + link + '">' + esc(d.linkedin.replace(/^https?:\/\/(www\.)?/i, '')) + '</a>'));
-
-    var dims = logo.dims;
-    var logoImg = '<img src="' + esc(logoUrl()) + '" width="' + dims.w + '" height="' + dims.h + '" alt="' + esc(d.company || 'Logo')
-      + '" style="display:block;border:0;width:' + dims.w + 'px;height:' + dims.h + 'px;">';
-    if (d.website) logoImg = '<a href="' + esc(siteUrl(d.website)) + '" style="text-decoration:none;">' + logoImg + '</a>';
-
-    var logoCell = '<td style="vertical-align:middle;' + (rtl ? 'padding-left:16px;' : 'padding-right:16px;') + '">' + logoImg + '</td>';
-    var sideBorder = rtl ? 'border-right:2px solid ' + NAVY + ';padding-right:16px;' : 'border-left:2px solid ' + NAVY + ';padding-left:16px;';
-
-    var identity = '<div style="' + font + 'font-size:19px;font-weight:700;color:' + NAVY + ';line-height:24px;">' + esc(d.name || (rtl ? 'الاسم' : 'Your Name')) + '</div>'
-      + (d.name2 ? '<div style="' + font + 'font-size:13px;color:#777777;line-height:18px;">' + esc(d.name2) + '</div>' : '')
-      + (d.title ? '<div style="' + font + 'font-size:14px;font-weight:600;color:#555555;line-height:20px;padding-top:4px;">' + esc(d.title) + '</div>' : '')
-      + (d.dept ? '<div style="' + font + 'font-size:13px;color:#777777;line-height:18px;">' + esc(d.dept) + '</div>' : '')
-      + (d.company ? '<div style="' + font + 'font-size:12px;color:#777777;line-height:18px;">' + esc(d.company) + '</div>' : '')
-      ;
-    var contacts = rows ? '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;">' + rows + '</table>' : '';
-
-    if (val('sigStyle') === 'banner') return buildBanner(d, align, font, logoImg, identity, contacts);
-
-    var text = '<td style="vertical-align:middle;' + sideBorder + 'text-align:' + align + ';">' + identity
-      + (contacts ? '<div style="height:8px;line-height:8px;font-size:8px;">&nbsp;</div>' + contacts : '')
-      + '</td>';
-
-    return '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;' + font + '">'
-      + '<tr>' + logoCell + text + '</tr>'
-      + '<tr><td colspan="2" style="padding-top:10px;"><div style="height:3px;line-height:3px;font-size:3px;width:60px;background-color:' + RED + ';' + (rtl ? 'margin-left:auto;' : '') + '">&nbsp;</div></td></tr>'
-      + '</table>';
+  /* Demo email around the preview, in the user's own name and language */
+  function renderDemo() {
+    var rtl = (val('dir') || 'ltr') === 'rtl';
+    var name = val('name') || (rtl ? 'الاسم' : 'Your Name');
+    var initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(function (w) { return w.charAt(0); }).join('').toUpperCase();
+    document.getElementById('demoAvatar').textContent = initials || '?';
+    document.getElementById('demoName').textContent = name;
+    document.getElementById('demoEmail').textContent = val('email') ? '<' + val('email') + '>' : '';
+    var mail = document.getElementById('demoMail');
+    mail.dir = rtl ? 'rtl' : 'ltr';
+    document.getElementById('demoSubject').textContent = rtl ? 'تحديث المشروع الأسبوعي' : 'Weekly project update';
+    document.getElementById('demoTo').textContent = rtl ? 'إلى: فريق العميل' : 'To: Client team';
+    document.getElementById('demoText').innerHTML = rtl
+      ? '<p>مرحبًا فريق العمل،</p><p>مرفق آخر تحديث للمشروع. برجاء مراجعته وإبلاغي بأي استفسارات قبل يوم الخميس.</p><p>مع خالص التحية،</p>'
+      : '<p>Hi team,</p><p>Please find attached the latest project update. Let me know if you have any questions before Thursday.</p><p>Best regards,</p>';
   }
 
   function render() {
     var m = logoMode();
+    document.getElementById('logoSet').hidden = val('sigStyle') === 'text';
     document.getElementById('logoUploadBox').hidden = m !== 'upload';
     document.getElementById('logoUrlBox').hidden = m !== 'url';
     document.getElementById('fileWarn').hidden = !(location.protocol === 'file:' && logoUrl() === defaultLogo());
@@ -409,6 +528,7 @@
     else if (m === 'url' && !isWebLink(val('logo'))) setLogoMsg('Paste a link that starts with https://. The Curve logo is used until you do.');
     else if (logo.error && logo.error === src) setLogoMsg('This image could not be loaded. Check that the link opens the image in your browser.');
     else setLogoMsg('');
+    renderDemo();
     sigBox.innerHTML = buildSignature();
     save();
   }
@@ -428,6 +548,7 @@
     try { logo.data = localStorage.getItem(LOGO_STORE) || ''; } catch (e) {}
     try { data = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch (e) {}
     if (!data) return;
+    if (data.sigStyle === 'compact') data.sigStyle = 'side'; // style name from v3
     for (var i = 0; i < form.elements.length; i++) {
       var el = form.elements[i];
       if (!el.name || !(el.name in data)) continue;
