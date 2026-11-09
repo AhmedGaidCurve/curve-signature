@@ -3,7 +3,8 @@
 A one-page tool for Curve Modern Technology (CMT) employees. Each person fills in their details and copies a
 ready-made email signature, with the Curve logo, into Outlook or Gmail.
 
-- English (left-to-right) or Arabic (right-to-left) layout
+- English (left-to-right) or Arabic (right-to-left) signature
+- The page itself in English or Arabic (button in the header). Arabic link: `https://ahmedgaidcurve.github.io/curve-signature/?lang=ar`
 - The signature is built from tables and inline styles only, so Outlook and Gmail display it correctly
 - Copy the signature, copy its HTML code, or download it as a `.htm` file
 - The details stay in the user's browser. Nothing is sent to a server.
@@ -13,7 +14,7 @@ ready-made email signature, with the Curve logo, into Outlook or Gmail.
 | File | Purpose |
 |------|---------|
 | `index.html` | The generator page |
-| `logo.png` | Curve logo (420×240, shown at 140×80). The signature links to it, so keep it in the published site. |
+| `logo.png` | Curve logo (420×240, transparent background, shown at 140×80). The signature links to it, so keep it in the published site. |
 | `logo-dark.png` | Light-on-transparent version of the logo, used in the page header in dark mode |
 
 ## Publish on GitHub Pages

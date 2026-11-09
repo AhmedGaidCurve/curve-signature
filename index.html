@@ -6,7 +6,17 @@
 <title>Curve Signature Generator</title>
 <meta name="description" content="Create your Curve Modern Technology (CMT) email signature for Outlook and Gmail.">
 <link rel="icon" href="logo.png">
-<script>try { var t = localStorage.getItem('curve-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}</script>
+<script>
+try { var t = localStorage.getItem('curve-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+/* Page language: ?lang=ar in the link wins, then the saved choice, else English */
+(function () {
+  var q = (location.search.match(/[?&]lang=(ar|en)\b/) || [])[1], s = null;
+  try { s = localStorage.getItem('curve-page-lang'); } catch (e) {}
+  var lang = q || s || 'en';
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+})();
+</script>
 <style>
   :root {
     --navy: #2B2E73;
@@ -40,7 +50,9 @@
   header .wrap { display: flex; align-items: center; gap: 12px; height: 60px; }
   header img { height: 30px; }
   header h1 { margin: 0; font-size: 16px; font-weight: 600; }
-  header .ver { margin-left: auto; font-size: 12px; color: var(--muted); }
+  header .ver { margin-inline-start: auto; font-size: 12px; color: var(--muted); }
+  /* Arabic letters must join: no letter spacing or capitals in RTL */
+  [dir="rtl"] legend, [dir="rtl"] .preview-head h2 { letter-spacing: 0; text-transform: none; font-size: 12.5px; }
   /* Logo + theme icon follow the theme */
   .logo-dark, .i-sun { display: none; }
   @media (prefers-color-scheme: dark) {
@@ -126,8 +138,8 @@
 
   .help { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 14px; }
   .help h3 { font-size: 13px; margin: 12px 0 4px; }
-  .help ol { margin: 0; padding-left: 20px; color: var(--muted); font-size: 13px; }
-  .help code { background: var(--soft); border-radius: 4px; padding: 1px 5px; font-size: 12px; }
+  .help ol { margin: 0; padding-inline-start: 20px; color: var(--muted); font-size: 13px; }
+  .help code { background: var(--soft); border-radius: 4px; padding: 1px 5px; font-size: 12px; direction: ltr; unicode-bidi: isolate; }
 
   /* Full view */
   dialog#full {
@@ -140,7 +152,7 @@
     display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px;
     background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1;
   }
-  .full-bar h2 { margin: 0 auto 0 0; font-size: 14px; font-weight: 600; }
+  .full-bar h2 { margin: 0; margin-inline-end: auto; font-size: 14px; font-weight: 600; }
   .full-stage { flex: 1; overflow: auto; padding: 28px 16px; }
   .full-stage .mail { transition: max-width .2s ease; }
   .full-stage.phone .mail { max-width: 390px; }
@@ -153,8 +165,9 @@
   <div class="wrap">
     <img class="logo-light" src="logo.png" alt="Curve">
     <img class="logo-dark" src="logo-dark.png" alt="Curve">
-    <h1>Email signature</h1>
-    <span class="ver">v7</span>
+    <h1 data-i18n="title">Email signature</h1>
+    <span class="ver">v8</span>
+    <button class="theme-btn" id="langBtn" type="button" lang="ar">العربية</button>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode">
       <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><g class="i-sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></g></svg>
       <span id="themeLabel">Dark</span>
@@ -163,9 +176,9 @@
 </header>
 
 <main class="wrap">
-  <form id="f" autocomplete="on" onsubmit="return false" aria-label="Your details">
+  <form id="f" autocomplete="on" onsubmit="return false" aria-label="Your details" data-i18n-aria="formAria">
     <fieldset>
-      <legend>Language</legend>
+      <legend data-i18n="legLang">Signature language</legend>
       <div class="pills">
         <label><input type="radio" name="dir" value="ltr" checked><span>English</span></label>
         <label><input type="radio" name="dir" value="rtl"><span>العربية</span></label>
@@ -173,68 +186,68 @@
     </fieldset>
 
     <fieldset>
-      <legend>Style</legend>
+      <legend data-i18n="legStyle">Style</legend>
       <div class="pills">
-        <label title="Full width, one thin line"><input type="radio" name="sigStyle" value="slim" checked><span>Slim line</span></label>
-        <label title="Text first, small logo below"><input type="radio" name="sigStyle" value="minimal"><span>Minimal</span></label>
-        <label title="Logo beside your name"><input type="radio" name="sigStyle" value="side"><span>Side logo</span></label>
-        <label title="No logo, short red accent"><input type="radio" name="sigStyle" value="text"><span>Text only</span></label>
-        <label title="Bold, full width"><input type="radio" name="sigStyle" value="banner"><span>Banner</span></label>
+        <label title="Full width, one thin line" data-i18n-title="tSlim"><input type="radio" name="sigStyle" value="slim" checked><span data-i18n="sSlim">Slim line</span></label>
+        <label title="Text first, small logo below" data-i18n-title="tMinimal"><input type="radio" name="sigStyle" value="minimal"><span data-i18n="sMinimal">Minimal</span></label>
+        <label title="Logo beside your name" data-i18n-title="tSide"><input type="radio" name="sigStyle" value="side"><span data-i18n="sSide">Side logo</span></label>
+        <label title="No logo, short red accent" data-i18n-title="tText"><input type="radio" name="sigStyle" value="text"><span data-i18n="sText">Text only</span></label>
+        <label title="Bold, full width" data-i18n-title="tBanner"><input type="radio" name="sigStyle" value="banner"><span data-i18n="sBanner">Banner</span></label>
       </div>
     </fieldset>
 
     <fieldset id="logoSet">
-      <legend>Logo</legend>
+      <legend data-i18n="legLogo">Logo</legend>
       <div class="pills">
-        <label><input type="radio" name="logoMode" value="default" checked><span>Curve logo</span></label>
-        <label><input type="radio" name="logoMode" value="upload"><span>Upload</span></label>
-        <label><input type="radio" name="logoMode" value="url"><span>Image link</span></label>
+        <label><input type="radio" name="logoMode" value="default" checked><span data-i18n="logoDefault">Curve logo</span></label>
+        <label><input type="radio" name="logoMode" value="upload"><span data-i18n="logoUpload">Upload</span></label>
+        <label><input type="radio" name="logoMode" value="url"><span data-i18n="logoUrl">Image link</span></label>
       </div>
       <div id="logoUploadBox" class="logo-opt" hidden>
-        <label>Image file (PNG or JPG)<input type="file" id="logoFile" accept="image/png,image/jpeg,image/gif,image/webp"></label>
-        <p class="note">Saved inside the signature. Outlook shows it; Gmail doesn't, so for Gmail use <b>Image link</b>.</p>
+        <label><span data-i18n="lblFile">Image file (PNG or JPG)</span><input type="file" id="logoFile" accept="image/png,image/jpeg,image/gif,image/webp"></label>
+        <p class="note" data-i18n-html="noteUpload">Saved inside the signature. Outlook shows it; Gmail doesn't, so for Gmail use <b>Image link</b>.</p>
       </div>
       <div id="logoUrlBox" class="logo-opt" hidden>
-        <label>Image link<input name="logo" type="url" placeholder="https://www.example.com/logo.png" dir="ltr"></label>
-        <p class="note">Must be a public image online, so people who get your emails can see it.</p>
+        <label><span data-i18n="lblLogoUrl">Image link</span><input name="logo" type="url" placeholder="https://www.example.com/logo.png" dir="ltr"></label>
+        <p class="note" data-i18n="noteUrl">Must be a public image online, so people who get your emails can see it.</p>
       </div>
       <p class="note" id="logoMsg" role="status"></p>
     </fieldset>
 
     <fieldset>
-      <legend>You</legend>
-      <label>Full name<input name="name" placeholder="Mahmoud Fahmy" required></label>
-      <label>Name in the other language<input name="name2" placeholder="محمود فهمي (optional)" dir="auto"></label>
-      <label>Job title<input name="title" placeholder="Oracle SCM Functional Consultant" dir="auto"></label>
-      <label>Department<input name="dept" placeholder="Optional" dir="auto"></label>
+      <legend data-i18n="legYou">You</legend>
+      <label><span data-i18n="lblName">Full name</span><input name="name" placeholder="Mahmoud Fahmy" data-i18n-ph="phName" dir="auto" required></label>
+      <label><span data-i18n="lblName2">Name in the other language</span><input name="name2" placeholder="محمود فهمي (optional)" data-i18n-ph="phName2" dir="auto"></label>
+      <label><span data-i18n="lblTitle">Job title</span><input name="title" placeholder="Oracle SCM Functional Consultant" data-i18n-ph="phTitle" dir="auto"></label>
+      <label><span data-i18n="lblDept">Department</span><input name="dept" placeholder="Optional" data-i18n-ph="phOptional" dir="auto"></label>
     </fieldset>
 
     <fieldset>
-      <legend>Contact</legend>
-      <label>Mobile<input name="mobile" type="tel" placeholder="+20 10 1234 5678" dir="ltr"></label>
+      <legend data-i18n="legContact">Contact</legend>
+      <label><span data-i18n="lblMobile">Mobile</span><input name="mobile" type="tel" placeholder="+20 10 1234 5678" dir="ltr"></label>
       <div class="row">
-        <label>Office phone<input name="office" type="tel" placeholder="Optional" dir="ltr"></label>
-        <label>Ext.<input name="ext" placeholder="123" dir="ltr"></label>
+        <label><span data-i18n="lblOffice">Office phone</span><input name="office" type="tel" placeholder="Optional" data-i18n-ph="phOptional" dir="ltr"></label>
+        <label><span data-i18n="lblExt">Ext.</span><input name="ext" placeholder="123" dir="ltr"></label>
       </div>
-      <label>Work email<input name="email" type="email" placeholder="m.fahmy@curve-cmt.com" dir="ltr"></label>
-      <label>Other email<input name="email2" type="email" placeholder="Optional" dir="ltr"></label>
-      <label>LinkedIn<input name="linkedin" type="url" placeholder="https://www.linkedin.com/in/... (optional)" dir="ltr"></label>
+      <label><span data-i18n="lblEmail">Work email</span><input name="email" type="email" placeholder="m.fahmy@curve-cmt.com" dir="ltr"></label>
+      <label><span data-i18n="lblEmail2">Other email</span><input name="email2" type="email" placeholder="Optional" data-i18n-ph="phOptional" dir="ltr"></label>
+      <label><span data-i18n="lblLinkedin">LinkedIn</span><input name="linkedin" type="url" placeholder="https://www.linkedin.com/in/... (optional)" data-i18n-ph="phLinkedin" dir="ltr"></label>
     </fieldset>
 
     <details>
-      <summary>Company settings</summary>
-      <label>Company line<input name="company" value="Curve Modern Technology - CMT" dir="auto"></label>
-      <label>Website<input name="website" value="www.curve-cmt.com" dir="ltr"></label>
+      <summary data-i18n="company">Company settings</summary>
+      <label><span data-i18n="lblCompany">Company line</span><input name="company" value="Curve Modern Technology - CMT" dir="auto"></label>
+      <label><span data-i18n="lblWebsite">Website</span><input name="website" value="www.curve-cmt.com" dir="ltr"></label>
     </details>
   </form>
 
-  <section class="preview" aria-label="Preview">
+  <section class="preview" aria-label="Preview" data-i18n-aria="preview">
     <div class="preview-head">
-      <h2>Preview</h2>
-      <span class="note">Updates as you type</span>
+      <h2 data-i18n="preview">Preview</h2>
+      <span class="note" data-i18n="live">Updates as you type</span>
     </div>
     <div class="stage">
-      <p id="fileWarn" class="warn" hidden>
+      <p id="fileWarn" class="warn" hidden data-i18n-html="fileWarn">
         Opened from your computer: people who get your emails won't see this logo. Use the website link,
         or choose another <b>Logo</b> option.
       </p>
@@ -254,18 +267,19 @@
     </div>
 
     <div class="actions">
-      <button class="primary" id="copySig" type="button">Copy signature</button>
-      <button id="openFull" type="button">Full view</button>
+      <button class="primary" id="copySig" type="button" data-i18n="copySig">Copy signature</button>
+      <button id="openFull" type="button" data-i18n="fullView">Full view</button>
     </div>
     <div class="links">
-      <button id="copyHtml" type="button">Copy HTML</button>
-      <button id="download" type="button">Download .htm</button>
-      <button id="reset" type="button">Clear form</button>
+      <button id="copyHtml" type="button" data-i18n="copyHtml">Copy HTML</button>
+      <button id="download" type="button" data-i18n="download">Download .htm</button>
+      <button id="reset" type="button" data-i18n="reset">Clear form</button>
     </div>
     <div class="status" id="status" role="status" aria-live="polite"></div>
 
     <details class="help">
-      <summary>How to add it to Outlook or Gmail</summary>
+      <summary data-i18n="helpTitle">How to add it to Outlook or Gmail</summary>
+      <div data-i18n-html="help">
       <h3>Outlook (desktop)</h3>
       <ol>
         <li>Click <b>Copy signature</b>.</li>
@@ -281,19 +295,20 @@
         <li><b>Create new</b>, paste with <b>Ctrl+V</b>, then <b>Save Changes</b> at the bottom.</li>
       </ol>
       <p class="note" style="margin-top:10px;">Your details stay in this browser. Nothing is sent to any server.</p>
+      </div>
     </details>
   </section>
 </main>
 
-<dialog id="full" aria-label="Full view of your email">
+<dialog id="full" aria-label="Full view of your email" data-i18n-aria="fullAria">
   <div class="full-bar">
-    <h2>Full view</h2>
-    <div class="pills" role="group" aria-label="Screen size">
-      <label><input type="radio" name="fullSize" value="desktop" checked><span>Desktop</span></label>
-      <label><input type="radio" name="fullSize" value="phone"><span>Phone</span></label>
+    <h2 data-i18n="fullView">Full view</h2>
+    <div class="pills" role="group" aria-label="Screen size" data-i18n-aria="sizeAria">
+      <label><input type="radio" name="fullSize" value="desktop" checked><span data-i18n="desktop">Desktop</span></label>
+      <label><input type="radio" name="fullSize" value="phone"><span data-i18n="phone">Phone</span></label>
     </div>
-    <button class="primary" id="fullCopy" type="button">Copy signature</button>
-    <button id="closeFull" type="button" aria-label="Close full view">Close</button>
+    <button class="primary" id="fullCopy" type="button" data-i18n="copySig">Copy signature</button>
+    <button id="closeFull" type="button" aria-label="Close full view" data-i18n="close" data-i18n-aria="closeAria">Close</button>
   </div>
   <div class="full-stage desktop" id="fullStage"></div>
 </dialog>
@@ -305,6 +320,106 @@
   var form = document.getElementById('f');
   var sigBox = document.getElementById('sig');
   var statusEl = document.getElementById('status');
+
+  /* Page text in English and Arabic. Keys match data-i18n* attributes in the page. */
+  var TEXT = {
+    en: {
+      docTitle: 'Curve Signature Generator', title: 'Email signature', otherLang: 'العربية',
+      formAria: 'Your details', legLang: 'Signature language', legStyle: 'Style',
+      sSlim: 'Slim line', sMinimal: 'Minimal', sSide: 'Side logo', sText: 'Text only', sBanner: 'Banner',
+      tSlim: 'Full width, one thin line', tMinimal: 'Text first, small logo below', tSide: 'Logo beside your name',
+      tText: 'No logo, short red accent', tBanner: 'Bold, full width',
+      legLogo: 'Logo', logoDefault: 'Curve logo', logoUpload: 'Upload', logoUrl: 'Image link',
+      lblFile: 'Image file (PNG or JPG)',
+      noteUpload: 'Saved inside the signature. Outlook shows it; Gmail doesn\'t, so for Gmail use <b>Image link</b>.',
+      lblLogoUrl: 'Image link', noteUrl: 'Must be a public image online, so people who get your emails can see it.',
+      legYou: 'You', lblName: 'Full name', phName: 'Mahmoud Fahmy',
+      lblName2: 'Name in the other language', phName2: 'محمود فهمي (optional)',
+      lblTitle: 'Job title', phTitle: 'Oracle SCM Functional Consultant', lblDept: 'Department', phOptional: 'Optional',
+      legContact: 'Contact', lblMobile: 'Mobile', lblOffice: 'Office phone', lblExt: 'Ext.', lblEmail: 'Work email',
+      lblEmail2: 'Other email', lblLinkedin: 'LinkedIn', phLinkedin: 'https://www.linkedin.com/in/... (optional)',
+      company: 'Company settings', lblCompany: 'Company line', lblWebsite: 'Website',
+      preview: 'Preview', live: 'Updates as you type',
+      fileWarn: 'Opened from your computer: people who get your emails won\'t see this logo. Use the website link, or choose another <b>Logo</b> option.',
+      copySig: 'Copy signature', fullView: 'Full view', copyHtml: 'Copy HTML', download: 'Download .htm', reset: 'Clear form',
+      helpTitle: 'How to add it to Outlook or Gmail',
+      help: '<h3>Outlook (desktop)</h3><ol><li>Click <b>Copy signature</b>.</li>'
+        + '<li><code>File &gt; Options &gt; Mail &gt; Signatures</code> (new Outlook: <code>Settings &gt; Accounts &gt; Signatures</code>).</li>'
+        + '<li><b>New</b>, name it, click in the editor and press <b>Ctrl+V</b>.</li>'
+        + '<li>Set it as default for new messages and replies, then <b>Save</b>.</li></ol>'
+        + '<h3>Outlook on the web</h3><ol><li><code>Settings &gt; Account &gt; Signatures</code>, paste with <b>Ctrl+V</b>, <b>Save</b>.</li></ol>'
+        + '<h3>Gmail</h3><ol><li><code>Settings &gt; See all settings &gt; General &gt; Signature</code>.</li>'
+        + '<li><b>Create new</b>, paste with <b>Ctrl+V</b>, then <b>Save Changes</b> at the bottom.</li></ol>'
+        + '<p class="note" style="margin-top:10px;">Your details stay in this browser. Nothing is sent to any server.</p>',
+      fullAria: 'Full view of your email', sizeAria: 'Screen size', desktop: 'Desktop', phone: 'Phone',
+      close: 'Close', closeAria: 'Close full view', copiedBtn: 'Copied ✓',
+      dark: 'Dark', light: 'Light', toDark: 'Switch to dark mode', toLight: 'Switch to light mode',
+      mImgType: 'Please choose an image file (PNG or JPG).', mImgRead: 'This image could not be read. Try a PNG or JPG file.',
+      mChoose: 'Choose an image file. The Curve logo is used until you do.',
+      mPaste: 'Paste a link that starts with https://. The Curve logo is used until you do.',
+      mLoad: 'This image could not be loaded. Check that the link opens the image in your browser.',
+      mCopied: 'Signature copied - paste it into your email signature settings.',
+      mCopyFail: 'Copy failed - select the preview and press Ctrl+C.', mHtml: 'HTML code copied.', mFail: 'Copy failed.'
+    },
+    ar: {
+      docTitle: 'منشئ توقيع Curve', title: 'توقيع البريد الإلكتروني', otherLang: 'English',
+      formAria: 'بياناتك', legLang: 'لغة التوقيع', legStyle: 'الشكل',
+      sSlim: 'خط رفيع', sMinimal: 'بسيط', sSide: 'شعار جانبي', sText: 'نص فقط', sBanner: 'شريط عريض',
+      tSlim: 'بعرض كامل، مع خط رفيع واحد', tMinimal: 'النص أولًا، وشعار صغير أسفله', tSide: 'الشعار بجانب اسمك',
+      tText: 'بدون شعار، مع خط أحمر قصير', tBanner: 'بارز، بعرض كامل',
+      legLogo: 'الشعار', logoDefault: 'شعار Curve', logoUpload: 'رفع صورة', logoUrl: 'رابط صورة',
+      lblFile: 'ملف الصورة (PNG أو JPG)',
+      noteUpload: 'تُحفظ الصورة داخل التوقيع. يعرضها Outlook ولا يعرضها Gmail، لذلك استخدم <b>رابط صورة</b> مع Gmail.',
+      lblLogoUrl: 'رابط الصورة', noteUrl: 'يجب أن تكون صورة منشورة على الإنترنت، حتى يراها من يستلم رسائلك.',
+      legYou: 'بياناتك', lblName: 'الاسم الكامل', phName: 'محمود فهمي',
+      lblName2: 'الاسم باللغة الأخرى', phName2: 'Mahmoud Fahmy (اختياري)',
+      lblTitle: 'المسمى الوظيفي', phTitle: 'استشاري وظيفي Oracle SCM', lblDept: 'القسم', phOptional: 'اختياري',
+      legContact: 'التواصل', lblMobile: 'الموبايل', lblOffice: 'هاتف المكتب', lblExt: 'التحويلة', lblEmail: 'بريد العمل',
+      lblEmail2: 'بريد آخر', lblLinkedin: 'لينكد إن', phLinkedin: 'https://www.linkedin.com/in/...',
+      company: 'بيانات الشركة', lblCompany: 'سطر الشركة', lblWebsite: 'الموقع الإلكتروني',
+      preview: 'المعاينة', live: 'تتحدث أثناء الكتابة',
+      fileWarn: 'الصفحة مفتوحة من جهازك: من يستلم رسائلك لن يرى هذا الشعار. استخدم رابط الموقع، أو اختر خيارًا آخر من <b>الشعار</b>.',
+      copySig: 'نسخ التوقيع', fullView: 'عرض كامل', copyHtml: 'نسخ كود HTML', download: 'تنزيل ملف .htm', reset: 'مسح البيانات',
+      helpTitle: 'طريقة إضافته إلى Outlook أو Gmail',
+      help: '<h3>Outlook (على الكمبيوتر)</h3><ol><li>اضغط <b>نسخ التوقيع</b>.</li>'
+        + '<li>افتح <code>File &gt; Options &gt; Mail &gt; Signatures</code> (في Outlook الجديد: <code>Settings &gt; Accounts &gt; Signatures</code>).</li>'
+        + '<li>اضغط <b>New</b> واكتب اسمًا للتوقيع، ثم اضغط داخل المحرر واضغط <b>Ctrl+V</b>.</li>'
+        + '<li>اجعله التوقيع الافتراضي للرسائل الجديدة والردود، ثم اضغط <b>Save</b>.</li></ol>'
+        + '<h3>Outlook على الويب</h3><ol><li>افتح <code>Settings &gt; Account &gt; Signatures</code>، والصق بـ <b>Ctrl+V</b>، ثم اضغط <b>Save</b>.</li></ol>'
+        + '<h3>Gmail</h3><ol><li>افتح <code>Settings &gt; See all settings &gt; General &gt; Signature</code>.</li>'
+        + '<li>اضغط <b>Create new</b>، والصق بـ <b>Ctrl+V</b>، ثم اضغط <b>Save Changes</b> في أسفل الصفحة.</li></ol>'
+        + '<p class="note" style="margin-top:10px;">بياناتك تبقى في هذا المتصفح فقط، ولا تُرسل إلى أي خادم.</p>',
+      fullAria: 'عرض كامل لرسالتك', sizeAria: 'حجم الشاشة', desktop: 'كمبيوتر', phone: 'موبايل',
+      close: 'إغلاق', closeAria: 'إغلاق العرض الكامل', copiedBtn: 'تم النسخ ✓',
+      dark: 'داكن', light: 'فاتح', toDark: 'التبديل إلى الوضع الداكن', toLight: 'التبديل إلى الوضع الفاتح',
+      mImgType: 'اختر ملف صورة (PNG أو JPG).', mImgRead: 'تعذّرت قراءة هذه الصورة. جرّب ملف PNG أو JPG.',
+      mChoose: 'اختر ملف صورة. سيُستخدم شعار Curve حتى تختار صورة.',
+      mPaste: 'الصق رابطًا يبدأ بـ https://. سيُستخدم شعار Curve حتى تضيف الرابط.',
+      mLoad: 'تعذّر تحميل هذه الصورة. تأكد أن الرابط يفتح الصورة في المتصفح.',
+      mCopied: 'تم نسخ التوقيع. الصقه في إعدادات التوقيع في بريدك.',
+      mCopyFail: 'تعذّر النسخ. حدّد المعاينة واضغط Ctrl+C.', mHtml: 'تم نسخ كود HTML.', mFail: 'تعذّر النسخ.'
+    }
+  };
+  var pageLang = document.documentElement.lang === 'ar' ? 'ar' : 'en';
+  function t(k) { return TEXT[pageLang][k] || TEXT.en[k] || k; }
+  function applyLang() {
+    var root = document.documentElement;
+    root.lang = pageLang;
+    root.dir = pageLang === 'ar' ? 'rtl' : 'ltr';
+    document.title = t('docTitle');
+    function each(attr, fn) {
+      var els = document.querySelectorAll('[' + attr + ']');
+      for (var i = 0; i < els.length; i++) fn(els[i], t(els[i].getAttribute(attr)));
+    }
+    each('data-i18n', function (el, s) { el.textContent = s; });
+    each('data-i18n-html', function (el, s) { el.innerHTML = s; });
+    each('data-i18n-ph', function (el, s) { el.placeholder = s; });
+    each('data-i18n-title', function (el, s) { el.title = s; });
+    each('data-i18n-aria', function (el, s) { el.setAttribute('aria-label', s); });
+    var lb = document.getElementById('langBtn');
+    lb.textContent = t('otherLang');
+    lb.lang = pageLang === 'ar' ? 'en' : 'ar';
+  }
 
   var LOGO_STORE = 'curve-signature-logo';
   var BOX_W = 140, BOX_H = 80;
@@ -364,7 +479,7 @@
 
   function readLogoFile(file) {
     if (!file) return;
-    if (!/^image\//.test(file.type)) { setLogoMsg('Please choose an image file (PNG or JPG).'); return; }
+    if (!/^image\//.test(file.type)) { setLogoMsg(t('mImgType')); return; }
     var reader = new FileReader();
     reader.onload = function () {
       var img = new Image();
@@ -384,7 +499,7 @@
         try { localStorage.setItem(LOGO_STORE, data); } catch (e) {}
         render();
       };
-      img.onerror = function () { setLogoMsg('This image could not be read. Try a PNG or JPG file.'); };
+      img.onerror = function () { setLogoMsg(t('mImgRead')); };
       img.src = reader.result;
     };
     reader.readAsDataURL(file);
@@ -563,9 +678,9 @@
     document.getElementById('fileWarn').hidden = !(location.protocol === 'file:' && logoUrl() === defaultLogo());
     measure();
     var src = logoUrl();
-    if (m === 'upload' && !logo.data) setLogoMsg('Choose an image file. The Curve logo is used until you do.');
-    else if (m === 'url' && !isWebLink(val('logo'))) setLogoMsg('Paste a link that starts with https://. The Curve logo is used until you do.');
-    else if (logo.error && logo.error === src) setLogoMsg('This image could not be loaded. Check that the link opens the image in your browser.');
+    if (m === 'upload' && !logo.data) setLogoMsg(t('mChoose'));
+    else if (m === 'url' && !isWebLink(val('logo'))) setLogoMsg(t('mPaste'));
+    else if (logo.error && logo.error === src) setLogoMsg(t('mLoad'));
     else setLogoMsg('');
     renderDemo();
     sigBox.innerHTML = buildSignature();
@@ -609,7 +724,7 @@
         'text/html': new Blob([html], { type: 'text/html' }),
         'text/plain': new Blob([sigBox.innerText], { type: 'text/plain' })
       });
-      return navigator.clipboard.write([item]).then(function () { flash('Signature copied - paste it into your email signature settings.'); }, fallbackCopy);
+      return navigator.clipboard.write([item]).then(function () { flash(t('mCopied')); }, fallbackCopy);
     }
     fallbackCopy();
   }
@@ -621,16 +736,16 @@
     var ok = false;
     try { ok = document.execCommand('copy'); } catch (e) {}
     sel.removeAllRanges();
-    flash(ok ? 'Signature copied - paste it into your email signature settings.' : 'Copy failed - select the preview and press Ctrl+C.');
+    flash(ok ? t('mCopied') : t('mCopyFail'));
   }
   function copyHtml() {
     var html = buildSignature();
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(html).then(function () { flash('HTML code copied.'); }, function () { flash('Copy failed.'); });
+      navigator.clipboard.writeText(html).then(function () { flash(t('mHtml')); }, function () { flash(t('mFail')); });
     } else {
       var ta = document.createElement('textarea');
       ta.value = html; document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); flash('HTML code copied.'); } catch (e) { flash('Copy failed.'); }
+      try { document.execCommand('copy'); flash(t('mHtml')); } catch (e) { flash(t('mFail')); }
       document.body.removeChild(ta);
     }
   }
@@ -652,8 +767,8 @@
   }
   function syncThemeBtn() {
     var dark = isDark();
-    document.getElementById('themeLabel').textContent = dark ? 'Light' : 'Dark';
-    document.getElementById('themeBtn').setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    document.getElementById('themeLabel').textContent = dark ? t('light') : t('dark');
+    document.getElementById('themeBtn').setAttribute('aria-label', dark ? t('toLight') : t('toDark'));
   }
   document.getElementById('themeBtn').addEventListener('click', function () {
     var next = isDark() ? 'light' : 'dark';
@@ -682,8 +797,8 @@
   document.getElementById('fullCopy').addEventListener('click', function () {
     var btn = this;
     copyRich();
-    btn.textContent = 'Copied ✓';
-    setTimeout(function () { btn.textContent = 'Copy signature'; }, 2000);
+    btn.textContent = t('copiedBtn');
+    setTimeout(function () { btn.textContent = t('copySig'); }, 2000);
   });
   full.addEventListener('click', function (e) { if (e.target === full) closeFull(); }); // click on the dimmed area
   full.addEventListener('change', function (e) {
@@ -701,10 +816,27 @@
     form.reset();
     form.elements.company.value = keep.company; form.elements.website.value = keep.website; form.elements.logo.value = keep.logo;
     form.querySelector('input[name=logoMode][value="' + keep.logoMode + '"]').checked = true;
+    if (pageLang === 'ar') form.querySelector('input[name=dir][value="rtl"]').checked = true;
     render();
   });
 
+  /* Page language switch. It also sets the signature language; the user can still change that. */
+  document.getElementById('langBtn').addEventListener('click', function () {
+    pageLang = pageLang === 'ar' ? 'en' : 'ar';
+    try { localStorage.setItem('curve-page-lang', pageLang); } catch (e) {}
+    try { history.replaceState(null, '', location.pathname + (pageLang === 'ar' ? '?lang=ar' : '') + location.hash); } catch (e) {}
+    form.querySelector('input[name=dir][value="' + (pageLang === 'ar' ? 'rtl' : 'ltr') + '"]').checked = true;
+    applyLang();
+    syncThemeBtn();
+    render();
+  });
+
+  applyLang();
+  syncThemeBtn();
+  var firstVisit = true;
+  try { firstVisit = !localStorage.getItem(STORE); } catch (e) {}
   load();
+  if (firstVisit && pageLang === 'ar') form.querySelector('input[name=dir][value="rtl"]').checked = true;
   render();
 })();
 </script>
