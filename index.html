@@ -6,6 +6,9 @@
 <title>Curve Signature Generator</title>
 <meta name="description" content="Create your Curve Modern Technology (CMT) email signature for Outlook and Gmail.">
 <link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap">
 <script>
 try { var t = localStorage.getItem('curve-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
 /* Page language: ?lang=ar in the link wins, then the saved choice, else English */
@@ -44,6 +47,8 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 "Segoe UI", Tahoma, Arial, sans-serif; }
+  /* Arabic page uses Cairo; Arabic words on the English page too */
+  html[lang="ar"] body, [lang="ar"], .pills input[value="rtl"] + span { font-family: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif; }
   .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
 
   header { border-bottom: 1px solid var(--border); }
@@ -110,6 +115,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
 
   /* Demo email - always light, like a real email */
   .mail { background: #ffffff; color: #333333; border: 1px solid #e4e5ea; border-radius: 8px; overflow: hidden; margin: 0 auto; }
+  .mail[dir="rtl"] { font-family: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif; }
   .mail-head { padding: 14px 18px; border-bottom: 1px solid #eef0f3; }
   .mail-subject { font-size: 16px; font-weight: 600; color: #17181f; margin-bottom: 8px; }
   .mail-meta { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #6b6e7b; }
@@ -166,7 +172,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     <img class="logo-light" src="logo.png" alt="Curve">
     <img class="logo-dark" src="logo-dark.png" alt="Curve">
     <h1 data-i18n="title">Email signature</h1>
-    <span class="ver">v8</span>
+    <span class="ver">v9</span>
     <button class="theme-btn" id="langBtn" type="button" lang="ar">العربية</button>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode">
       <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><g class="i-sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></g></svg>
@@ -522,7 +528,8 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     var align = rtl ? 'right' : 'left';
     var start = rtl ? 'right' : 'left';
     var end = rtl ? 'left' : 'right';
-    var font = "font-family:'Segoe UI',Tahoma,Arial,sans-serif;";
+    /* Arabic: Cairo first. Email apps can't load web fonts, so readers without Cairo installed get Segoe UI / Tahoma */
+    var font = rtl ? "font-family:Cairo,'Segoe UI',Tahoma,Arial,sans-serif;" : "font-family:'Segoe UI',Tahoma,Arial,sans-serif;";
     var link = 'color:#333333;text-decoration:none;';
     var GREY = '#6b6f85';
     var SEP = '<span style="color:#C4C7D4;">&nbsp;|&nbsp;</span>';
