@@ -8,7 +8,16 @@
   ],
   "countryCode": "20",
   "departments": [],
-  "titles": [],
+  "titles": [
+    {
+      "en": "Oracle Services",
+      "ar": "خدمات أوراكل"
+    },
+    {
+      "en": "Finance",
+      "ar": "المالية"
+    }
+  ],
   "allowOther": true,
   "lockCompany": false,
   "legalEn": "",
