@@ -178,7 +178,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     <img class="logo-light" src="logo.png" alt="Curve">
     <img class="logo-dark" src="logo-dark.png" alt="Curve">
     <h1 data-i18n="title">Email signature</h1>
-    <span class="ver">v10</span>
+    <span class="ver">v11</span>
     <button class="theme-btn" id="langBtn" type="button" lang="ar">العربية</button>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode">
       <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><g class="i-sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></g></svg>
@@ -541,6 +541,19 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     var GREY = '#6b6f85';
     var SEP = '<span style="color:#C4C7D4;">&nbsp;|&nbsp;</span>';
 
+    /* Display text. In English signatures, Arabic words get their own Cairo span, so readers who have Cairo
+       installed see them in Cairo (email apps can't load web fonts, and Segoe UI would draw Arabic otherwise). */
+    var AR_RUN = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-ﻼ]+(?:[\s ]+[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-ﻼ]+)*/g;
+    function tx(s) {
+      var h = esc(s);
+      if (rtl) return h;
+      return h.replace(AR_RUN, function (m) { return "<span style=\"font-family:Cairo,'Cairo Arabic','Segoe UI',Tahoma,Arial,sans-serif;\">" + m + '</span>'; });
+    }
+    /* Small contact icons (PNG on the published site; Outlook and Gmail don't show SVG). Alt text = the old letter. */
+    function icon(name, alt) {
+      return '<img src="' + esc(new URL('icons/' + name + '.png', location.href).href) + '" width="14" height="14" alt="' + esc(alt)
+        + '" style="display:block;border:0;width:14px;height:14px;">';
+    }
     function ltrSpan(inner) { return '<span dir="ltr">' + inner + '</span>'; }
     function a(href, text) { return '<span dir="ltr" style="white-space:nowrap;"><a href="' + esc(href) + '" style="' + link + '">' + esc(text) + '</a></span>'; }
     function line(html, size, color, extra) {
@@ -559,20 +572,19 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     var online = [c.email, c.email2, c.web, c.linkedin].filter(Boolean);
 
     function rowsTable(labels, labelSize) {
-      function row(label, html, color) {
+      function row(key, label, html) {
         return '<tr>'
-          + '<td style="' + font + 'font-size:' + labelSize + 'px;font-weight:700;color:' + (color || NAVY) + ';padding:1px 0;padding-' + end + ':10px;'
-          + 'white-space:nowrap;vertical-align:top;text-align:' + align + ';">' + esc(label) + '</td>'
-          + '<td style="' + font + 'font-size:13px;color:#333333;padding:1px 0;vertical-align:top;white-space:nowrap;text-align:' + align + ';">' + html + '</td>'
+          + '<td width="24" style="width:24px;padding:3px 0;padding-' + end + ':10px;vertical-align:middle;">' + icon(key, label) + '</td>'
+          + '<td style="' + font + 'font-size:13px;color:#333333;padding:3px 0;vertical-align:middle;white-space:nowrap;text-align:' + align + ';">' + html + '</td>'
           + '</tr>';
       }
       var r = '';
-      if (c.mobile) r += row(labels.mobile, c.mobile);
-      if (c.office) r += row(labels.office, c.office);
-      if (c.email) r += row(labels.email, c.email, style === 'banner' ? RED : '');
-      if (c.email2) r += row(labels.email, c.email2);
-      if (c.web) r += row(labels.web, c.web);
-      if (c.linkedin) r += row(labels.linkedin, c.linkedin);
+      if (c.mobile) r += row('mobile', labels.mobile, c.mobile);
+      if (c.office) r += row('phone', labels.office, c.office);
+      if (c.email) r += row('email', labels.email, c.email);
+      if (c.email2) r += row('email', labels.email, c.email2);
+      if (c.web) r += row('web', labels.web, c.web);
+      if (c.linkedin) r += row('linkedin', labels.linkedin, c.linkedin);
       return r ? '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;">' + r + '</table>' : '';
     }
 
@@ -583,8 +595,8 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
       return d.website ? '<a href="' + esc(siteUrl(d.website)) + '" style="text-decoration:none;">' + img + '</a>' : img;
     }
 
-    var nameText = esc(d.name || (rtl ? 'الاسم' : 'Your Name'));
-    var role = [d.title, d.dept].filter(Boolean).map(esc).join(' &middot; ');
+    var nameText = tx(d.name || (rtl ? 'الاسم' : 'Your Name'));
+    var role = [d.title, d.dept].filter(Boolean).map(tx).join(' &middot; ');
     var table = '<table cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="border-collapse:collapse;' + font + '"';
 
     /* Slim line: thin rule across the email, small logo | name + role | contacts on the far side */
@@ -594,7 +606,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
         + '<td style="padding-top:12px;padding-' + end + ':16px;vertical-align:middle;width:1%;">' + logoImg(0.5) + '</td>'
         + '<td style="padding-top:12px;vertical-align:middle;text-align:' + align + ';">'
         + line('<b style="font-size:15px;color:' + NAVY + ';">' + nameText + '</b>'
-          + (d.name2 ? '&nbsp;&nbsp;<span style="color:' + GREY + ';">' + esc(d.name2) + '</span>' : ''), 13, '#333333')
+          + (d.name2 ? '&nbsp;&nbsp;<span style="color:' + GREY + ';">' + tx(d.name2) + '</span>' : ''), 13, '#333333')
         + (role ? line(role, 13, GREY) : '')
         + '</td>'
         + ((phones.length || online.length)
@@ -610,7 +622,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     if (style === 'minimal') {
       return '<div dir="' + d.dir + '" style="text-align:' + align + ';">'
         + line('<b>' + nameText + '</b>', 16, NAVY)
-        + (d.name2 ? line(esc(d.name2), 13, GREY) : '')
+        + (d.name2 ? line(tx(d.name2), 13, GREY) : '')
         + (role ? line(role, 13, GREY) : '')
         + (phones.length || online.length ? line(phones.concat(online).join(SEP), 13, '#333333', 'padding-top:6px;') : '')
         + '<div style="padding-top:10px;' + (rtl ? 'float:right;' : '') + '">' + logoImg(0.65) + '</div>'
@@ -624,7 +636,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
         + '<td style="vertical-align:middle;padding-' + end + ':16px;">' + logoImg(0.75) + '</td>'
         + '<td style="vertical-align:middle;border-' + start + ':1px solid #DCDFE8;padding-' + start + ':16px;text-align:' + align + ';">'
         + line('<b>' + nameText + '</b>', 16, NAVY)
-        + (d.name2 ? line(esc(d.name2), 13, GREY) : '')
+        + (d.name2 ? line(tx(d.name2), 13, GREY) : '')
         + (role ? line(role, 13, GREY) : '')
         + (phones.length ? line(phones.join(SEP), 13, '#333333', 'padding-top:4px;') : '')
         + (online.length ? line(online.join(SEP), 13, '#333333') : '')
@@ -633,11 +645,11 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
 
     /* Text only: short red accent, name, role, labelled contacts - no logo */
     if (style === 'text') {
-      var who = [d.title, d.dept, d.company].filter(Boolean).map(esc).join(' &middot; ');
+      var who = [d.title, d.dept, d.company].filter(Boolean).map(tx).join(' &middot; ');
       return '<div dir="' + d.dir + '" style="text-align:' + align + ';">'
         + '<div style="width:28px;height:3px;line-height:3px;font-size:3px;background-color:' + RED + ';margin-bottom:10px;' + (rtl ? 'margin-left:auto;' : '') + '">&nbsp;</div>'
         + line('<b>' + nameText + '</b>', 16, NAVY)
-        + (d.name2 ? line(esc(d.name2), 13, GREY) : '')
+        + (d.name2 ? line(tx(d.name2), 13, GREY) : '')
         + (who ? line(who, 13, GREY, 'padding-bottom:8px;') : '')
         + rowsTable(S, 12.5)
         + '</div>';
@@ -645,15 +657,15 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
 
     /* Banner: full width - logo | name | contacts, navy strip (company + website) along the bottom */
     var identity = line('<b>' + nameText + '</b>', 19, NAVY)
-      + (d.name2 ? line(esc(d.name2), 13, '#777777') : '')
-      + (d.title ? line('<b>' + esc(d.title) + '</b>', 14, '#555555', 'padding-top:4px;') : '')
-      + (d.dept ? line(esc(d.dept), 13, '#777777') : '')
-      + (d.company ? line(esc(d.company), 12, '#777777') : '');
+      + (d.name2 ? line(tx(d.name2), 13, '#777777') : '')
+      + (d.title ? line('<b>' + tx(d.title) + '</b>', 14, '#555555', 'padding-top:4px;') : '')
+      + (d.dept ? line(tx(d.dept), 13, '#777777') : '')
+      + (d.company ? line(tx(d.company), 12, '#777777') : '');
     var contacts = rowsTable(L, 12);
     var cell = 'vertical-align:middle;padding:16px 20px;text-align:' + align + ';';
     var logoW = logo.dims.w + 40;
     var strip = [];
-    if (d.company) strip.push(esc(d.company));
+    if (d.company) strip.push(tx(d.company));
     if (d.website) strip.push('<a href="' + esc(siteUrl(d.website)) + '" style="color:#ffffff;text-decoration:none;"><span dir="ltr">' + esc(d.website) + '</span></a>');
     return '<table width="100%" cellpadding="0" cellspacing="0" border="0" dir="' + d.dir + '" style="width:100%;border-collapse:collapse;' + font
       + 'background-color:#ffffff;border:1px solid #E3E5EE;border-top:4px solid ' + NAVY + ';">'
