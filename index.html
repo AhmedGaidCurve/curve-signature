@@ -1254,20 +1254,27 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     var cfg = readHr(), body = JSON.stringify(cfg, null, 2) + '\n';
     var api = 'https://api.github.com/repos/' + REPO + '/contents/company.json';
     var headers = { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' };
-    function fail(code) {
-      hrFlash(code === 401 ? t('hrErrKey') : (code === 403 || code === 404) ? t('hrErrPerm') : t('hrErrNet'), true);
+    /* Reject with GitHub's status and its own message, so the error says what GitHub said */
+    function bad(r) {
+      return r.json().then(function (j) { return j; }, function () { return {}; })
+        .then(function (j) { return Promise.reject({ status: r.status, msg: (j && j.message) || '' }); });
+    }
+    function fail(e) {
+      var code = e && e.status, msg = code === 401 ? t('hrErrKey') : (code === 403 || code === 404) ? t('hrErrPerm') : t('hrErrNet');
+      if (code) msg += ' (GitHub ' + code + (e.msg ? ': ' + e.msg : '') + ')';
+      hrFlash(msg, true);
       btn.disabled = false;
     }
     btn.disabled = true;
     hrFlash(t('hrPublishing'));
     fetch(api + '?t=' + Date.now(), { headers: headers, cache: 'no-store' })
-      .then(function (r) { return r.status === 404 ? {} : r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (r) { return r.status === 404 ? {} : r.ok ? r.json() : bad(r); })
       .then(function (cur) {
         return fetch(api, { method: 'PUT', headers: headers, body: JSON.stringify({
           message: 'HR: update company settings', content: b64(body), sha: cur.sha
         }) });
       })
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (r) { return r.ok ? r.json() : bad(r); })
       .then(function () {
         PUBLISHED = normCfg(cfg);
         applyCfg(normCfg(cfg));
