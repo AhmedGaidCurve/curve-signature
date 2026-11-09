@@ -45,7 +45,8 @@ domains, default country code, departments and job titles (English and Arabic), 
 
 1. Open the page with `?hr=1` at the end: `https://ahmedgaidcurve.github.io/curve-signature/?hr=1`
 2. Fill in the settings. The page shows them right away, but only in that browser (a "draft").
-3. Click **Download company.json**, then upload it to this repository (**Add file > Upload files**, **Commit changes**).
+3. Paste the GitHub key (fine-grained token, this repo only, Contents: Read and write) and click **Publish to everyone**.
+   The page saves `company.json` to this repository through the GitHub API. (Download company.json + upload still works as a backup.)
 4. After 1 to 2 minutes, everyone gets the new lists. Click **Discard draft** to go back to the published settings.
 
 Lists use one line per item: `English name | Arabic name`.

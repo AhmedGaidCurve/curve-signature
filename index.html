@@ -112,6 +112,11 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
   .hr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
   .hr-grid .wide { grid-column: 1 / -1; }
   @media (max-width: 700px) { .hr-grid { grid-template-columns: minmax(0, 1fr); } }
+  .hr-publish { margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .hr-help ol { margin: 0; padding-inline-start: 20px; color: var(--muted); font-size: 13px; }
+  .hr-help code { background: var(--soft); border-radius: 4px; padding: 1px 5px; font-size: 12px; direction: ltr; unicode-bidi: isolate; }
+  .status.err { color: var(--warn-text); }
+  button:disabled { opacity: .6; cursor: progress; }
   .row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 10px; }
 
   /* Choice pills: Layout, Style, Logo */
@@ -202,7 +207,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     <img class="logo-light" src="logo.png" alt="Curve">
     <img class="logo-dark" src="logo-dark.png" alt="Curve">
     <h1 data-i18n="title">Email signature</h1>
-    <span class="ver">v12</span>
+    <span class="ver">v13</span>
     <button class="theme-btn" id="langBtn" type="button" lang="ar">العربية</button>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode">
       <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><g class="i-sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></g></svg>
@@ -236,9 +241,20 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
       <label><span data-i18n="hrLegalAr">Legal note (Arabic)</span><textarea id="hr_legalAr" dir="rtl" lang="ar"></textarea></label>
       <label class="check wide"><input type="checkbox" id="hr_legalReq"><span data-i18n="hrLegalReq">The legal note is required (staff can't remove it)</span></label>
     </div>
+    <div class="hr-grid hr-publish">
+      <label><span data-i18n="hrToken">GitHub key (token)</span><input id="hrToken" type="password" dir="ltr" autocomplete="off" spellcheck="false" placeholder="github_pat_..."></label>
+      <label class="check" style="align-self:center;"><input type="checkbox" id="hrRemember"><span data-i18n="hrRemember">Remember the key on this computer</span></label>
+    </div>
+    <details class="hr-help">
+      <summary data-i18n="hrKeyHelpTitle">How to get a GitHub key (once)</summary>
+      <div data-i18n-html="hrKeyHelp"></div>
+    </details>
     <div class="actions">
-      <button class="primary" type="button" id="hrDownload" data-i18n="hrDownload">Download company.json</button>
+      <button class="primary" type="button" id="hrPublish" data-i18n="hrPublish">Publish to everyone</button>
       <button type="button" id="hrLoadPub" data-i18n="hrLoadPub">Load published settings</button>
+    </div>
+    <div class="links">
+      <button type="button" id="hrDownload" data-i18n="hrDownload">Download company.json</button>
     </div>
     <div class="status" id="hrStatus" role="status" aria-live="polite"></div>
   </div>
@@ -446,10 +462,20 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
       wDomain: 'This is not a company email. Use an address that ends in {d}.',
       draftBar: 'You are seeing your HR draft. Other people still see the published settings.', discardDraft: 'Discard draft',
       hrTitle: 'HR settings',
-      hrIntro: '<ol class="hr-steps"><li>Fill in the settings. The page below uses them right away, but only in this browser.</li>'
-        + '<li>Click <b>Download company.json</b>.</li>'
-        + '<li>On GitHub, open the <b>curve-signature</b> repository, click <b>Add file &gt; Upload files</b>, drop the file in, then click <b>Commit changes</b>.</li>'
-        + '<li>After 1 to 2 minutes, everyone sees the new settings.</li></ol>',
+      hrIntro: '<ol class="hr-steps"><li>Fill in the settings. The page below shows them right away, but only in this browser.</li>'
+        + '<li>Click <b>Publish to everyone</b>. Everyone gets the new settings in 1 to 2 minutes.</li></ol>',
+      hrToken: 'GitHub key (token)', hrRemember: 'Remember the key on this computer', hrPublish: 'Publish to everyone',
+      hrKeyHelpTitle: 'How to get a GitHub key (once)',
+      hrKeyHelp: '<ol><li>Sign in to GitHub as the owner of the <b>curve-signature</b> repository.</li>'
+        + '<li>Open <code>Settings &gt; Developer settings &gt; Personal access tokens &gt; Fine-grained tokens</code> and click <b>Generate new token</b>.</li>'
+        + '<li>Name it <b>Curve signature HR</b> and pick an expiry date (for example, 1 year).</li>'
+        + '<li>Repository access: <b>Only select repositories</b>, then choose <b>curve-signature</b>.</li>'
+        + '<li>Permissions: <b>Contents</b> = <b>Read and write</b>. Nothing else.</li>'
+        + '<li>Click <b>Generate token</b>, copy it and paste it above. Keep it secret: anyone who has it can change this repository.</li></ol>',
+      hrPublishing: 'Publishing...', hrPublished: 'Published. Everyone gets the new settings in 1 to 2 minutes.',
+      hrNeedKey: 'Paste the GitHub key first.', hrErrKey: 'The GitHub key is wrong or has expired.',
+      hrErrPerm: 'This key cannot change the curve-signature repository. Check its repository and its Contents permission.',
+      hrErrNet: 'Publishing failed. Check your internet connection and try again.',
       hrCompanyEn: 'Company name (English)', hrCompanyAr: 'Company name (Arabic)', hrWebsite: 'Website',
       hrDomains: 'Company email domains (comma between them)', hrCc: 'Default country code (numbers only, e.g. 20 for Egypt)',
       hrDepts: 'Departments: one per line, English | Arabic', hrTitles: 'Job titles: one per line, English | Arabic',
@@ -504,10 +530,20 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
       wDomain: 'هذا ليس بريد الشركة. استخدم عنوانًا ينتهي بـ {d}.',
       draftBar: 'أنت ترى مسودة إعدادات الموارد البشرية. باقي الموظفين يرون الإعدادات المنشورة.', discardDraft: 'حذف المسودة',
       hrTitle: 'إعدادات الموارد البشرية',
-      hrIntro: '<ol class="hr-steps"><li>املأ الإعدادات. الصفحة بالأسفل تستخدمها فورًا، لكن في هذا المتصفح فقط.</li>'
-        + '<li>اضغط <b>تنزيل company.json</b>.</li>'
-        + '<li>على GitHub افتح مستودع <b>curve-signature</b>، واضغط <b>Add file &gt; Upload files</b>، وضع الملف، ثم اضغط <b>Commit changes</b>.</li>'
-        + '<li>بعد دقيقة أو دقيقتين يرى الجميع الإعدادات الجديدة.</li></ol>',
+      hrIntro: '<ol class="hr-steps"><li>املأ الإعدادات. الصفحة بالأسفل تعرضها فورًا، لكن في هذا المتصفح فقط.</li>'
+        + '<li>اضغط <b>نشر للجميع</b>. يحصل الجميع على الإعدادات الجديدة خلال دقيقة أو دقيقتين.</li></ol>',
+      hrToken: 'مفتاح GitHub (token)', hrRemember: 'تذكّر المفتاح على هذا الكمبيوتر', hrPublish: 'نشر للجميع',
+      hrKeyHelpTitle: 'طريقة الحصول على مفتاح GitHub (مرة واحدة)',
+      hrKeyHelp: '<ol><li>سجّل الدخول إلى GitHub بحساب مالك مستودع <b>curve-signature</b>.</li>'
+        + '<li>افتح <code>Settings &gt; Developer settings &gt; Personal access tokens &gt; Fine-grained tokens</code> واضغط <b>Generate new token</b>.</li>'
+        + '<li>سمّه <b>Curve signature HR</b> واختر تاريخ انتهاء (مثلًا سنة).</li>'
+        + '<li>Repository access: اختر <b>Only select repositories</b> ثم <b>curve-signature</b>.</li>'
+        + '<li>Permissions: اجعل <b>Contents</b> = <b>Read and write</b>. لا شيء غير ذلك.</li>'
+        + '<li>اضغط <b>Generate token</b>، وانسخه والصقه بالأعلى. احتفظ به سرًا: أي شخص معه يستطيع تعديل هذا المستودع.</li></ol>',
+      hrPublishing: 'جارٍ النشر...', hrPublished: 'تم النشر. يحصل الجميع على الإعدادات الجديدة خلال دقيقة أو دقيقتين.',
+      hrNeedKey: 'الصق مفتاح GitHub أولًا.', hrErrKey: 'مفتاح GitHub غير صحيح أو انتهت صلاحيته.',
+      hrErrPerm: 'هذا المفتاح لا يملك صلاحية تعديل مستودع curve-signature. راجع المستودع وصلاحية Contents.',
+      hrErrNet: 'فشل النشر. تأكد من اتصال الإنترنت وحاول مرة أخرى.',
       hrCompanyEn: 'اسم الشركة (بالإنجليزية)', hrCompanyAr: 'اسم الشركة (بالعربية)', hrWebsite: 'الموقع الإلكتروني',
       hrDomains: 'نطاقات بريد الشركة (افصل بينها بفاصلة)', hrCc: 'كود الدولة الافتراضي (أرقام فقط، مثل 20 لمصر)',
       hrDepts: 'الأقسام: سطر لكل قسم، English | عربي', hrTitles: 'المسميات الوظيفية: سطر لكل مسمى، English | عربي',
@@ -721,7 +757,8 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     document.getElementById('companyBox').hidden = CFG.lockCompany;
     document.getElementById('legalBox').hidden = !(CFG.legalEn || CFG.legalAr) || CFG.legalRequired;
     form.elements.email.placeholder = 'm.fahmy@' + (CFG.emailDomains[0] || 'curvemt.com');
-    document.getElementById('draftBar').hidden = !getDraft();
+    var dr = getDraft();
+    document.getElementById('draftBar').hidden = !dr || (!!PUBLISHED && JSON.stringify(normCfg(dr)) === JSON.stringify(PUBLISHED));
   }
 
   /* ---------- Phone numbers and email checks ---------- */
@@ -1193,12 +1230,53 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
       legalEn: hrEl('legalEn').value.trim(), legalAr: hrEl('legalAr').value.trim(), legalRequired: hrEl('legalReq').checked
     };
   }
-  function hrFlash(msg) {
+  function hrFlash(msg, isErr) {
     var s = document.getElementById('hrStatus');
     s.textContent = msg;
+    s.className = 'status' + (isErr ? ' err' : '');
     clearTimeout(hrFlash.t);
-    hrFlash.t = setTimeout(function () { s.textContent = ''; }, 5000);
+    if (msg !== t('hrPublishing')) hrFlash.t = setTimeout(function () { s.textContent = ''; }, isErr ? 12000 : 8000);
   }
+
+  /* Publish: save company.json to the GitHub repository with HR's key (GitHub API). Pages redeploys in 1-2 minutes. */
+  var TOKEN_STORE = 'curve-hr-token';
+  var REPO = (function () {
+    var m = location.hostname.match(/^([^.]+)\.github\.io$/i), seg = location.pathname.split('/').filter(Boolean)[0];
+    return m && seg ? m[1] + '/' + seg : 'AhmedGaidCurve/curve-signature';
+  })();
+  var tokenEl = document.getElementById('hrToken'), rememberEl = document.getElementById('hrRemember');
+  try { var savedTok = localStorage.getItem(TOKEN_STORE); if (savedTok) { tokenEl.value = savedTok; rememberEl.checked = true; } } catch (e) {}
+  function b64(s) { return btoa(unescape(encodeURIComponent(s))); }
+  function publish() {
+    var btn = document.getElementById('hrPublish'), token = tokenEl.value.trim();
+    if (!token) { hrFlash(t('hrNeedKey'), true); tokenEl.focus(); return; }
+    try { if (rememberEl.checked) localStorage.setItem(TOKEN_STORE, token); else localStorage.removeItem(TOKEN_STORE); } catch (e) {}
+    var cfg = readHr(), body = JSON.stringify(cfg, null, 2) + '\n';
+    var api = 'https://api.github.com/repos/' + REPO + '/contents/company.json';
+    var headers = { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' };
+    function fail(code) {
+      hrFlash(code === 401 ? t('hrErrKey') : (code === 403 || code === 404) ? t('hrErrPerm') : t('hrErrNet'), true);
+      btn.disabled = false;
+    }
+    btn.disabled = true;
+    hrFlash(t('hrPublishing'));
+    fetch(api + '?t=' + Date.now(), { headers: headers, cache: 'no-store' })
+      .then(function (r) { return r.status === 404 ? {} : r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (cur) {
+        return fetch(api, { method: 'PUT', headers: headers, body: JSON.stringify({
+          message: 'HR: update company settings', content: b64(body), sha: cur.sha
+        }) });
+      })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function () {
+        PUBLISHED = normCfg(cfg);
+        applyCfg(normCfg(cfg));
+        render();
+        hrFlash(t('hrPublished'));
+        btn.disabled = false;
+      }, fail);
+  }
+  document.getElementById('hrPublish').addEventListener('click', publish);
   function onHrEdit() {
     var draft = readHr();
     try { localStorage.setItem(DRAFT_STORE, JSON.stringify(draft)); } catch (e) {}
@@ -1266,6 +1344,11 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
   function startCfg(pub) {
     PUBLISHED = normCfg(pub || {});
     var dr = getDraft();
+    /* The draft went live (published earlier): drop it */
+    if (dr && JSON.stringify(normCfg(dr)) === JSON.stringify(PUBLISHED)) {
+      try { localStorage.removeItem(DRAFT_STORE); } catch (e) {}
+      dr = null;
+    }
     applyCfg(dr ? normCfg(dr) : PUBLISHED);
     if (isHr) fillHr(CFG);
     render();
