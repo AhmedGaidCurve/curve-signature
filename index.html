@@ -46,6 +46,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     --input: #15161d; --accent: #aab0ff; --focus: rgba(170, 176, 255, .22); --ok: #5fd08f; --warn-text: #f3cf8a;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   /* Cairo for Arabic letters only: English letters skip this font and use Segoe UI */
   @font-face {
     font-family: "Cairo Arabic"; src: url("fonts/cairo-arabic.woff2") format("woff2");
@@ -88,6 +89,29 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
   input::placeholder { color: var(--muted); opacity: .5; }
   input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus); }
   input[type="file"] { padding: 6px; }
+  select, textarea {
+    display: block; width: 100%; margin-top: 4px; padding: 8px 10px; font: inherit; color: var(--text);
+    background: var(--input); border: 1px solid var(--border); border-radius: 6px;
+  }
+  textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
+  select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus); }
+  .check { display: flex; align-items: flex-start; gap: 8px; color: var(--text); cursor: pointer; }
+  .check input { width: auto; margin: 3px 0 0; flex: none; accent-color: var(--navy); }
+  .field-warn { display: block; margin-top: 4px; font-size: 12px; color: var(--warn-text); }
+  .field-warn:empty { display: none; }
+  select + input { margin-top: 6px; }
+
+  /* HR settings panel (?hr=1) and the draft notice */
+  .draft-bar { background: #fff4d6; color: #6b4a00; font-size: 13px; }
+  .draft-bar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding-top: 8px; padding-bottom: 8px; }
+  .draft-bar button { padding: 4px 10px; font-size: 12.5px; }
+  .hr { margin-top: 24px; }
+  .hr-box { border: 1px solid var(--border); border-radius: 10px; padding: 20px; background: var(--input); }
+  .hr-box h2 { margin: 0 0 6px; font-size: 16px; }
+  .hr-steps { margin: 0 0 16px; padding-inline-start: 20px; color: var(--muted); font-size: 13px; }
+  .hr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
+  .hr-grid .wide { grid-column: 1 / -1; }
+  @media (max-width: 700px) { .hr-grid { grid-template-columns: minmax(0, 1fr); } }
   .row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 10px; }
 
   /* Choice pills: Layout, Style, Logo */
@@ -178,7 +202,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     <img class="logo-light" src="logo.png" alt="Curve">
     <img class="logo-dark" src="logo-dark.png" alt="Curve">
     <h1 data-i18n="title">Email signature</h1>
-    <span class="ver">v11</span>
+    <span class="ver">v12</span>
     <button class="theme-btn" id="langBtn" type="button" lang="ar">العربية</button>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode">
       <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><g class="i-sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></g></svg>
@@ -186,6 +210,39 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     </button>
   </div>
 </header>
+
+<div class="draft-bar" id="draftBar" hidden>
+  <div class="wrap">
+    <span data-i18n="draftBar">You are seeing your HR draft. Other people still see the published settings.</span>
+    <button type="button" id="discardDraft" data-i18n="discardDraft">Discard draft</button>
+  </div>
+</div>
+
+<section class="wrap hr" id="hrPanel" hidden aria-labelledby="hrTitle">
+  <div class="hr-box">
+    <h2 id="hrTitle" data-i18n="hrTitle">HR settings</h2>
+    <div data-i18n-html="hrIntro"></div>
+    <div class="hr-grid" id="hrForm">
+      <label><span data-i18n="hrCompanyEn">Company name (English)</span><input id="hr_companyEn" dir="ltr"></label>
+      <label><span data-i18n="hrCompanyAr">Company name (Arabic)</span><input id="hr_companyAr" dir="rtl" lang="ar"></label>
+      <label><span data-i18n="hrWebsite">Website</span><input id="hr_website" dir="ltr"></label>
+      <label><span data-i18n="hrDomains">Company email domains</span><input id="hr_domains" dir="ltr" placeholder="curvemt.com, curve-cmt.com"></label>
+      <label><span data-i18n="hrCc">Default country code</span><input id="hr_cc" dir="ltr" inputmode="numeric" placeholder="20"></label>
+      <label class="check wide"><input type="checkbox" id="hr_lock"><span data-i18n="hrLock">Lock company name and website</span></label>
+      <label><span data-i18n="hrDepts">Departments</span><textarea id="hr_depts" dir="auto" placeholder="Finance | المالية&#10;Human Resources | الموارد البشرية"></textarea></label>
+      <label><span data-i18n="hrTitles">Job titles</span><textarea id="hr_titles" dir="auto" placeholder="Oracle Developer | مطور أوراكل&#10;Project Manager | مدير مشروع"></textarea></label>
+      <label class="check wide"><input type="checkbox" id="hr_allowOther"><span data-i18n="hrAllowOther">Staff can type a department or title that is not in the list</span></label>
+      <label><span data-i18n="hrLegalEn">Legal note (English)</span><textarea id="hr_legalEn" dir="ltr"></textarea></label>
+      <label><span data-i18n="hrLegalAr">Legal note (Arabic)</span><textarea id="hr_legalAr" dir="rtl" lang="ar"></textarea></label>
+      <label class="check wide"><input type="checkbox" id="hr_legalReq"><span data-i18n="hrLegalReq">The legal note is required (staff can't remove it)</span></label>
+    </div>
+    <div class="actions">
+      <button class="primary" type="button" id="hrDownload" data-i18n="hrDownload">Download company.json</button>
+      <button type="button" id="hrLoadPub" data-i18n="hrLoadPub">Load published settings</button>
+    </div>
+    <div class="status" id="hrStatus" role="status" aria-live="polite"></div>
+  </div>
+</section>
 
 <main class="wrap">
   <form id="f" autocomplete="on" onsubmit="return false" aria-label="Your details" data-i18n-aria="formAria">
@@ -230,23 +287,30 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
       <legend data-i18n="legYou">You</legend>
       <label><span data-i18n="lblName">Full name</span><input name="name" placeholder="Mahmoud Fahmy" data-i18n-ph="phName" dir="auto" required></label>
       <label><span data-i18n="lblName2">Name in the other language</span><input name="name2" placeholder="محمود فهمي (optional)" data-i18n-ph="phName2" dir="auto"></label>
-      <label><span data-i18n="lblTitle">Job title</span><input name="title" placeholder="Oracle SCM Functional Consultant" data-i18n-ph="phTitle" dir="auto"></label>
-      <label><span data-i18n="lblDept">Department</span><input name="dept" placeholder="Optional" data-i18n-ph="phOptional" dir="auto"></label>
+      <label><span data-i18n="lblTitle">Job title</span><select id="titleSel" hidden></select><input name="title" placeholder="Oracle SCM Functional Consultant" data-i18n-ph="phTitle" dir="auto"></label>
+      <label><span data-i18n="lblDept">Department</span><select id="deptSel" hidden></select><input name="dept" placeholder="Optional" data-i18n-ph="phOptional" dir="auto"></label>
     </fieldset>
 
     <fieldset>
       <legend data-i18n="legContact">Contact</legend>
-      <label><span data-i18n="lblMobile">Mobile</span><input name="mobile" type="tel" placeholder="+20 10 1234 5678" dir="ltr"></label>
+      <label><span data-i18n="lblMobile">Mobile</span><input name="mobile" type="tel" placeholder="+20 10 1234 5678" dir="ltr"><span class="field-warn" id="w_mobile"></span></label>
       <div class="row">
-        <label><span data-i18n="lblOffice">Office phone</span><input name="office" type="tel" placeholder="Optional" data-i18n-ph="phOptional" dir="ltr"></label>
-        <label><span data-i18n="lblExt">Ext.</span><input name="ext" placeholder="123" dir="ltr"></label>
+        <label><span data-i18n="lblOffice">Office phone</span><input name="office" type="tel" placeholder="Optional" data-i18n-ph="phOptional" dir="ltr"><span class="field-warn" id="w_office"></span></label>
+        <label><span data-i18n="lblExt">Ext.</span><input name="ext" placeholder="123" dir="ltr" inputmode="numeric"></label>
       </div>
-      <label><span data-i18n="lblEmail">Work email</span><input name="email" type="email" placeholder="m.fahmy@curve-cmt.com" dir="ltr"></label>
-      <label><span data-i18n="lblEmail2">Other email</span><input name="email2" type="email" placeholder="Optional" data-i18n-ph="phOptional" dir="ltr"></label>
+      <label><span data-i18n="lblEmail">Work email</span><input name="email" type="email" placeholder="m.fahmy@curvemt.com" dir="ltr"><span class="field-warn" id="w_email"></span></label>
+      <label><span data-i18n="lblEmail2">Other email</span><input name="email2" type="email" placeholder="Optional" data-i18n-ph="phOptional" dir="ltr"><span class="field-warn" id="w_email2"></span></label>
       <label><span data-i18n="lblLinkedin">LinkedIn</span><input name="linkedin" type="url" placeholder="https://www.linkedin.com/in/... (optional)" data-i18n-ph="phLinkedin" dir="ltr"></label>
     </fieldset>
 
-    <details>
+    <fieldset>
+      <legend data-i18n="legExtras">Extras</legend>
+      <label class="check"><input type="checkbox" name="qr"><span data-i18n="lblQr">Add a QR code (phones scan it to save your contact)</span></label>
+      <p class="note" id="qrNote" data-i18n-html="noteQr" hidden></p>
+      <label class="check" id="legalBox" hidden><input type="checkbox" name="legal" checked><span data-i18n="lblLegal">Add the company legal note</span></label>
+    </fieldset>
+
+    <details id="companyBox">
       <summary data-i18n="company">Company settings</summary>
       <label><span data-i18n="lblCompany">Company line</span><input name="company" value="Curve Modern Technology - CMT" dir="auto"></label>
       <label><span data-i18n="lblWebsite">Website</span><input name="website" value="www.curve-cmt.com" dir="ltr"></label>
@@ -285,6 +349,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     <div class="links">
       <button id="copyHtml" type="button" data-i18n="copyHtml">Copy HTML</button>
       <button id="download" type="button" data-i18n="download">Download .htm</button>
+      <button id="downloadQr" type="button" data-i18n="downloadQr" hidden>Download QR</button>
       <button id="reset" type="button" data-i18n="reset">Clear form</button>
     </div>
     <div class="status" id="status" role="status" aria-live="polite"></div>
@@ -325,6 +390,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
   <div class="full-stage desktop" id="fullStage"></div>
 </dialog>
 
+<script src="lib/qrcode.min.js"></script>
 <script>
 (function () {
   var NAVY = '#2B2E73', RED = '#E0242F';
@@ -371,7 +437,27 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
       mPaste: 'Paste a link that starts with https://. The Curve logo is used until you do.',
       mLoad: 'This image could not be loaded. Check that the link opens the image in your browser.',
       mCopied: 'Signature copied - paste it into your email signature settings.',
-      mCopyFail: 'Copy failed - select the preview and press Ctrl+C.', mHtml: 'HTML code copied.', mFail: 'Copy failed.'
+      mCopyFail: 'Copy failed - select the preview and press Ctrl+C.', mHtml: 'HTML code copied.', mFail: 'Copy failed.',
+      legExtras: 'Extras', lblQr: 'Add a QR code (phones scan it to save your contact)',
+      noteQr: 'Works when you paste into Outlook. Gmail may drop it: then click <b>Download QR</b> and add the picture in Gmail\'s signature editor.',
+      lblLegal: 'Add the company legal note', downloadQr: 'Download QR',
+      selChoose: 'Choose...', selOther: 'Other (type it)',
+      wPhone: 'This number looks too short or too long. Check it.', wEmail: 'This email address doesn\'t look right.',
+      wDomain: 'This is not a company email. Use an address that ends in {d}.',
+      draftBar: 'You are seeing your HR draft. Other people still see the published settings.', discardDraft: 'Discard draft',
+      hrTitle: 'HR settings',
+      hrIntro: '<ol class="hr-steps"><li>Fill in the settings. The page below uses them right away, but only in this browser.</li>'
+        + '<li>Click <b>Download company.json</b>.</li>'
+        + '<li>On GitHub, open the <b>curve-signature</b> repository, click <b>Add file &gt; Upload files</b>, drop the file in, then click <b>Commit changes</b>.</li>'
+        + '<li>After 1 to 2 minutes, everyone sees the new settings.</li></ol>',
+      hrCompanyEn: 'Company name (English)', hrCompanyAr: 'Company name (Arabic)', hrWebsite: 'Website',
+      hrDomains: 'Company email domains (comma between them)', hrCc: 'Default country code (numbers only, e.g. 20 for Egypt)',
+      hrDepts: 'Departments: one per line, English | Arabic', hrTitles: 'Job titles: one per line, English | Arabic',
+      hrAllowOther: 'Staff can type a department or title that is not in the list',
+      hrLegalEn: 'Legal note (English)', hrLegalAr: 'Legal note (Arabic)',
+      hrLegalReq: 'The legal note is required (staff can\'t remove it)', hrLock: 'Lock company name and website',
+      hrDownload: 'Download company.json', hrLoadPub: 'Load published settings',
+      hrSaved: 'company.json downloaded. Upload it to GitHub to publish it.', hrLoaded: 'Published settings loaded.'
     },
     ar: {
       docTitle: 'منشئ توقيع Curve', title: 'توقيع البريد الإلكتروني', otherLang: 'English',
@@ -409,7 +495,27 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
       mPaste: 'الصق رابطًا يبدأ بـ https://. سيُستخدم شعار Curve حتى تضيف الرابط.',
       mLoad: 'تعذّر تحميل هذه الصورة. تأكد أن الرابط يفتح الصورة في المتصفح.',
       mCopied: 'تم نسخ التوقيع. الصقه في إعدادات التوقيع في بريدك.',
-      mCopyFail: 'تعذّر النسخ. حدّد المعاينة واضغط Ctrl+C.', mHtml: 'تم نسخ كود HTML.', mFail: 'تعذّر النسخ.'
+      mCopyFail: 'تعذّر النسخ. حدّد المعاينة واضغط Ctrl+C.', mHtml: 'تم نسخ كود HTML.', mFail: 'تعذّر النسخ.',
+      legExtras: 'إضافات', lblQr: 'إضافة رمز QR (يمسحه الموبايل لحفظ بياناتك)',
+      noteQr: 'يعمل عند اللصق في Outlook. قد يحذفه Gmail: عندها اضغط <b>تنزيل رمز QR</b> وأضف الصورة في محرر التوقيع في Gmail.',
+      lblLegal: 'إضافة الملاحظة القانونية للشركة', downloadQr: 'تنزيل رمز QR',
+      selChoose: 'اختر...', selOther: 'أخرى (اكتبها)',
+      wPhone: 'هذا الرقم يبدو قصيرًا أو طويلًا جدًا. راجعه.', wEmail: 'عنوان البريد هذا لا يبدو صحيحًا.',
+      wDomain: 'هذا ليس بريد الشركة. استخدم عنوانًا ينتهي بـ {d}.',
+      draftBar: 'أنت ترى مسودة إعدادات الموارد البشرية. باقي الموظفين يرون الإعدادات المنشورة.', discardDraft: 'حذف المسودة',
+      hrTitle: 'إعدادات الموارد البشرية',
+      hrIntro: '<ol class="hr-steps"><li>املأ الإعدادات. الصفحة بالأسفل تستخدمها فورًا، لكن في هذا المتصفح فقط.</li>'
+        + '<li>اضغط <b>تنزيل company.json</b>.</li>'
+        + '<li>على GitHub افتح مستودع <b>curve-signature</b>، واضغط <b>Add file &gt; Upload files</b>، وضع الملف، ثم اضغط <b>Commit changes</b>.</li>'
+        + '<li>بعد دقيقة أو دقيقتين يرى الجميع الإعدادات الجديدة.</li></ol>',
+      hrCompanyEn: 'اسم الشركة (بالإنجليزية)', hrCompanyAr: 'اسم الشركة (بالعربية)', hrWebsite: 'الموقع الإلكتروني',
+      hrDomains: 'نطاقات بريد الشركة (افصل بينها بفاصلة)', hrCc: 'كود الدولة الافتراضي (أرقام فقط، مثل 20 لمصر)',
+      hrDepts: 'الأقسام: سطر لكل قسم، English | عربي', hrTitles: 'المسميات الوظيفية: سطر لكل مسمى، English | عربي',
+      hrAllowOther: 'يمكن للموظف كتابة قسم أو مسمى غير موجود في القائمة',
+      hrLegalEn: 'الملاحظة القانونية (بالإنجليزية)', hrLegalAr: 'الملاحظة القانونية (بالعربية)',
+      hrLegalReq: 'الملاحظة القانونية إلزامية (لا يمكن للموظف حذفها)', hrLock: 'قفل اسم الشركة والموقع',
+      hrDownload: 'تنزيل company.json', hrLoadPub: 'تحميل الإعدادات المنشورة',
+      hrSaved: 'تم تنزيل company.json. ارفعه على GitHub لنشره.', hrLoaded: 'تم تحميل الإعدادات المنشورة.'
     }
   };
   var pageLang = document.documentElement.lang === 'ar' ? 'ar' : 'en';
@@ -517,13 +623,222 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     reader.readAsDataURL(file);
   }
 
+  /* ---------- Company settings from HR (company.json, or HR's local draft) ---------- */
+  var DEFAULT_CFG = {
+    companyEn: 'Curve Modern Technology - CMT', companyAr: '', website: 'www.curve-cmt.com',
+    emailDomains: ['curvemt.com', 'curve-cmt.com'], countryCode: '20',
+    departments: [], titles: [], allowOther: true,
+    legalEn: '', legalAr: '', legalRequired: false, lockCompany: false
+  };
+  var DRAFT_STORE = 'curve-hr-draft';
+  var isHr = /[?&]hr=1\b/.test(location.search);
+  var CFG = normCfg({}), PUBLISHED = null;
+
+  function str(v) { return v == null ? '' : String(v).trim(); }
+  function normList(a) {
+    var out = [];
+    (Array.isArray(a) ? a : []).forEach(function (it) {
+      var en = str(it && it.en), ar = str(it && it.ar);
+      if (en || ar) out.push({ en: en || ar, ar: ar });
+    });
+    return out;
+  }
+  function normCfg(o) {
+    o = o || {};
+    function pick(k) { return o[k] !== undefined ? o[k] : DEFAULT_CFG[k]; }
+    var doms = pick('emailDomains');
+    if (typeof doms === 'string') doms = doms.split(',');
+    return {
+      companyEn: str(pick('companyEn')), companyAr: str(pick('companyAr')), website: str(pick('website')),
+      emailDomains: (doms || []).map(function (d) { return str(d).toLowerCase().replace(/^@/, ''); }).filter(Boolean),
+      countryCode: str(pick('countryCode')).replace(/\D/g, ''),
+      departments: normList(pick('departments')), titles: normList(pick('titles')),
+      allowOther: pick('allowOther') !== false,
+      legalEn: str(pick('legalEn')), legalAr: str(pick('legalAr')),
+      legalRequired: pick('legalRequired') === true, lockCompany: pick('lockCompany') === true
+    };
+  }
+  function getDraft() {
+    try { var s = localStorage.getItem(DRAFT_STORE); return s ? JSON.parse(s) : null; } catch (e) { return null; }
+  }
+
+  /* Department / job title: a drop-down when HR gave a list; the named input keeps the English value */
+  function buildSelect(selId, name, list) {
+    var sel = document.getElementById(selId), inp = form.elements[name];
+    if (!list.length) { sel.hidden = true; inp.hidden = false; return; }
+    var cur = inp.value.trim(), match = null;
+    list.forEach(function (it) { if (it.en === cur || (it.ar && it.ar === cur)) match = it; });
+    var h = '<option value="">' + esc(t('selChoose')) + '</option>';
+    list.forEach(function (it) {
+      h += '<option value="' + esc(it.en) + '">' + esc(pageLang === 'ar' ? (it.ar || it.en) : it.en) + '</option>';
+    });
+    if (CFG.allowOther) h += '<option value="__other">' + esc(t('selOther')) + '</option>';
+    sel.innerHTML = h;
+    sel.hidden = false;
+    if (match) { inp.value = match.en; sel.value = match.en; inp.hidden = true; }
+    else if (cur && CFG.allowOther) { sel.value = '__other'; inp.hidden = false; }
+    else { inp.value = ''; sel.value = ''; inp.hidden = true; }
+  }
+  function buildSelects() {
+    buildSelect('titleSel', 'title', CFG.titles);
+    buildSelect('deptSel', 'dept', CFG.departments);
+  }
+  ['titleSel', 'deptSel'].forEach(function (id) {
+    document.getElementById(id).addEventListener('change', function () {
+      var inp = form.elements[id === 'titleSel' ? 'title' : 'dept'];
+      if (this.value === '__other') { inp.value = ''; inp.hidden = false; inp.focus(); }
+      else { inp.value = this.value; inp.hidden = true; }
+    });
+  });
+  /* The list item's name in the signature's language */
+  function listText(list, v, rtl) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].en === v || (list[i].ar && list[i].ar === v)) return rtl ? (list[i].ar || list[i].en) : list[i].en;
+    }
+    return v;
+  }
+  function companyText(rtl) {
+    var c = val('company');
+    if (rtl && CFG.companyAr && (CFG.lockCompany || c === CFG.companyEn)) return CFG.companyAr;
+    return c;
+  }
+  function legalText(rtl) {
+    if (!CFG.legalEn && !CFG.legalAr) return '';
+    if (!CFG.legalRequired && !form.elements.legal.checked) return '';
+    return rtl ? (CFG.legalAr || CFG.legalEn) : (CFG.legalEn || CFG.legalAr);
+  }
+
+  function applyCfg(c) {
+    var prev = CFG;
+    CFG = c;
+    buildSelects();
+    var co = form.elements.company, web = form.elements.website;
+    if (CFG.lockCompany) { co.value = CFG.companyEn; web.value = CFG.website; }
+    else {
+      if (!co.value.trim() || co.value === prev.companyEn || co.value === DEFAULT_CFG.companyEn) co.value = CFG.companyEn;
+      if (!web.value.trim() || web.value === prev.website || web.value === DEFAULT_CFG.website) web.value = CFG.website;
+    }
+    document.getElementById('companyBox').hidden = CFG.lockCompany;
+    document.getElementById('legalBox').hidden = !(CFG.legalEn || CFG.legalAr) || CFG.legalRequired;
+    form.elements.email.placeholder = 'm.fahmy@' + (CFG.emailDomains[0] || 'curvemt.com');
+    document.getElementById('draftBar').hidden = !getDraft();
+  }
+
+  /* ---------- Phone numbers and email checks ---------- */
+  var CC = ['1', '7', '20', '27', '30', '31', '33', '34', '39', '41', '44', '49', '61', '86', '90', '91', '92',
+    '212', '213', '216', '218', '249', '961', '962', '963', '964', '965', '966', '967', '968', '970', '971', '972', '973', '974'];
+  /* Tidy a number into +CC groups, e.g. +0201010665106 or 01010665106 -> +20 10 1066 5106 */
+  function formatPhone(raw) {
+    var s = String(raw || '').trim();
+    if (!s) return '';
+    var p = s.replace(/[^\d+]/g, ''), digits;
+    if (/^00/.test(p)) digits = p.slice(2);
+    else if (p.charAt(0) === '+') digits = p.slice(1).replace(/^0+/, '');
+    else if (p.charAt(0) === '0' && CFG.countryCode) digits = CFG.countryCode + p.replace(/^0+/, '');
+    else if (CFG.countryCode && p.length <= 10) digits = CFG.countryCode + p;
+    else digits = p;
+    digits = digits.replace(/\D/g, '');
+    if (digits.length < 8 || digits.length > 15) return s; // leave it; the warning explains
+    var cc = '';
+    for (var n = 3; n >= 1; n--) if (CC.indexOf(digits.slice(0, n)) >= 0) { cc = digits.slice(0, n); break; }
+    if (!cc) return '+' + digits;
+    var rest = digits.slice(cc.length), g = null, out = [], i = 0;
+    if (cc === '1' && rest.length === 10) g = [3, 3, 4];
+    else if (rest.length === 10) g = [2, 4, 4];
+    else if (rest.length === 9) g = [2, 3, 4];
+    else if (rest.length === 8) g = [4, 4];
+    else if (rest.length === 7) g = [3, 4];
+    if (g) g.forEach(function (k) { out.push(rest.substr(i, k)); i += k; });
+    else for (i = 0; i < rest.length; i += 3) out.push(rest.substr(i, 3));
+    return '+' + cc + ' ' + out.join(' ');
+  }
+  function checkFields() {
+    ['mobile', 'office'].forEach(function (n) {
+      var v = val(n), dg = v.replace(/\D/g, '').replace(/^0+/, '');
+      document.getElementById('w_' + n).textContent = v && (dg.length < 8 || dg.length > 15) ? t('wPhone') : '';
+    });
+    ['email', 'email2'].forEach(function (n) {
+      var v = val(n), msg = '';
+      if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) msg = t('wEmail');
+      else if (v && n === 'email' && CFG.emailDomains.length
+        && CFG.emailDomains.indexOf(v.split('@')[1].toLowerCase()) < 0) msg = t('wDomain').replace('{d}', CFG.emailDomains.join(' / '));
+      document.getElementById('w_' + n).textContent = msg;
+    });
+  }
+
+  /* ---------- QR code (vCard), drawn in the browser: nothing is sent anywhere ---------- */
+  var qrCache = { key: '', url: '' };
+  function qrOn() { return form.elements.qr.checked && !!val('name'); }
+  function vcard() {
+    var rtl = val('dir') === 'rtl';
+    function ve(s) { return String(s).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1'); }
+    var name = val('name'), parts = name.split(/\s+/).filter(Boolean);
+    var last = parts.length > 1 ? parts.pop() : '';
+    var v = ['BEGIN:VCARD', 'VERSION:3.0', 'N:' + ve(last) + ';' + ve(parts.join(' ')) + ';;;', 'FN:' + ve(name)];
+    var org = companyText(rtl), title = listText(CFG.titles, val('title'), rtl);
+    if (org) v.push('ORG:' + ve(org));
+    if (title) v.push('TITLE:' + ve(title));
+    if (val('mobile')) v.push('TEL;TYPE=CELL:' + val('mobile').replace(/[^\d+]/g, ''));
+    if (val('office')) v.push('TEL;TYPE=WORK,VOICE:' + val('office').replace(/[^\d+]/g, '') + (val('ext') ? ',' + val('ext').replace(/\D/g, '') : ''));
+    if (val('email')) v.push('EMAIL;TYPE=WORK:' + val('email'));
+    if (val('website')) v.push('URL:' + siteUrl(val('website')));
+    v.push('END:VCARD');
+    return v.join('\r\n');
+  }
+  function qrDataUrl() {
+    var v = vcard();
+    if (v === qrCache.key) return qrCache.url;
+    if (typeof qrcode !== 'function') return '';
+    qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
+    var q = qrcode(0, 'M');
+    q.addData(v, 'Byte');
+    q.make();
+    var n = q.getModuleCount(), quiet = 2, cell = Math.max(2, Math.floor(216 / (n + quiet * 2)));
+    var size = (n + quiet * 2) * cell;
+    var c = document.createElement('canvas');
+    c.width = c.height = size;
+    var x = c.getContext('2d');
+    x.fillStyle = '#ffffff'; x.fillRect(0, 0, size, size);
+    x.fillStyle = NAVY;
+    for (var r = 0; r < n; r++) for (var k = 0; k < n; k++) {
+      if (q.isDark(r, k)) x.fillRect((k + quiet) * cell, (r + quiet) * cell, cell, cell);
+    }
+    qrCache = { key: v, url: c.toDataURL('image/png') };
+    return qrCache.url;
+  }
+
+  /* The full signature: the chosen style, plus the QR code and the legal note */
+  function buildSignature() {
+    var rtl = val('dir') === 'rtl', dir = rtl ? 'rtl' : 'ltr', align = rtl ? 'right' : 'left';
+    var font = rtl ? "font-family:Cairo,'Segoe UI',Tahoma,Arial,sans-serif;" : "font-family:'Segoe UI',Tahoma,Arial,sans-serif;";
+    var html = buildCore();
+    var qr = qrOn() ? qrDataUrl() : '';
+    if (qr) {
+      var wide = /^(slim|banner)$/.test(val('sigStyle') || 'slim');
+      html = '<table cellpadding="0" cellspacing="0" border="0" dir="' + dir + '"' + (wide ? ' width="100%"' : '')
+        + ' style="border-collapse:collapse;' + (wide ? 'width:100%;' : '') + '"><tr>'
+        + '<td style="vertical-align:middle;">' + html + '</td>'
+        + '<td width="88" style="width:88px;vertical-align:middle;padding-' + (rtl ? 'right' : 'left') + ':16px;">'
+        + '<img src="' + qr + '" width="72" height="72" alt="QR" style="display:block;border:0;width:72px;height:72px;"></td>'
+        + '</tr></table>';
+    }
+    var legal = legalText(rtl);
+    if (legal) {
+      html += '<div dir="' + dir + '" style="' + font + 'font-size:10.5px;line-height:15px;color:#8a8d9c;text-align:' + align
+        + ';padding-top:12px;max-width:640px;">' + esc(legal).replace(/\r?\n/g, '<br>') + '</div>';
+    }
+    return html;
+  }
+
   /* Email-safe HTML: tables + inline styles only (Outlook / Gmail strip <style>).
      Styles: slim (default), minimal, side, text, banner */
-  function buildSignature() {
+  function buildCore() {
+    var isRtl = val('dir') === 'rtl';
     var d = {
-      dir: val('dir') || 'ltr', name: val('name'), name2: val('name2'), title: val('title'), dept: val('dept'),
+      dir: val('dir') || 'ltr', name: val('name'), name2: val('name2'),
+      title: listText(CFG.titles, val('title'), isRtl), dept: listText(CFG.departments, val('dept'), isRtl),
       mobile: val('mobile'), office: val('office'), ext: val('ext'), email: val('email'), email2: val('email2'),
-      linkedin: val('linkedin'), company: val('company'), website: val('website')
+      linkedin: val('linkedin'), company: companyText(isRtl), website: val('website')
     };
     var style = val('sigStyle') || 'slim';
     var rtl = d.dir === 'rtl';
@@ -709,6 +1024,10 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     else if (logo.error && logo.error === src) setLogoMsg(t('mLoad'));
     else setLogoMsg('');
     renderDemo();
+    checkFields();
+    var qrShow = qrOn();
+    document.getElementById('qrNote').hidden = !form.elements.qr.checked;
+    document.getElementById('downloadQr').hidden = !qrShow;
     sigBox.innerHTML = buildSignature();
     save();
   }
@@ -719,6 +1038,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
       var el = form.elements[i];
       if (!el.name) continue;
       if (el.type === 'radio') { if (el.checked) data[el.name] = el.value; }
+      else if (el.type === 'checkbox') data[el.name] = el.checked;
       else data[el.name] = el.value;
     }
     try { localStorage.setItem(STORE, JSON.stringify(data)); } catch (e) {}
@@ -733,8 +1053,11 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
       var el = form.elements[i];
       if (!el.name || !(el.name in data)) continue;
       if (el.type === 'radio') el.checked = el.value === data[el.name];
+      else if (el.type === 'checkbox') el.checked = data[el.name] === true;
       else el.value = data[el.name];
     }
+    form.elements.mobile.value = formatPhone(form.elements.mobile.value);
+    form.elements.office.value = formatPhone(form.elements.office.value);
   }
 
   function flash(msg) {
@@ -831,8 +1154,75 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     if (e.target.name === 'fullSize') fullStage.className = 'full-stage ' + e.target.value;
   });
 
+  /* Tidy phone numbers when the user leaves the box (runs before render) */
+  form.addEventListener('change', function (e) {
+    if (e.target.name === 'mobile' || e.target.name === 'office') e.target.value = formatPhone(e.target.value);
+  });
   form.addEventListener('input', render);
   form.addEventListener('change', render);
+  document.getElementById('downloadQr').addEventListener('click', function () {
+    var a = document.createElement('a');
+    a.href = qrDataUrl();
+    a.download = 'Curve-QR.png';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+
+  /* ---------- HR panel (?hr=1) ---------- */
+  var hrEl = function (id) { return document.getElementById('hr_' + id); };
+  function listToLines(list) { return list.map(function (it) { return it.ar ? it.en + ' | ' + it.ar : it.en; }).join('\n'); }
+  function linesToList(text) {
+    return text.split(/\r?\n/).map(function (l) {
+      var i = l.indexOf('|');
+      return i < 0 ? { en: l.trim(), ar: '' } : { en: l.slice(0, i).trim(), ar: l.slice(i + 1).trim() };
+    }).filter(function (it) { return it.en || it.ar; });
+  }
+  function fillHr(c) {
+    hrEl('companyEn').value = c.companyEn; hrEl('companyAr').value = c.companyAr; hrEl('website').value = c.website;
+    hrEl('domains').value = c.emailDomains.join(', '); hrEl('cc').value = c.countryCode;
+    hrEl('depts').value = listToLines(c.departments); hrEl('titles').value = listToLines(c.titles);
+    hrEl('allowOther').checked = c.allowOther; hrEl('lock').checked = c.lockCompany;
+    hrEl('legalEn').value = c.legalEn; hrEl('legalAr').value = c.legalAr; hrEl('legalReq').checked = c.legalRequired;
+  }
+  function readHr() {
+    return {
+      companyEn: hrEl('companyEn').value.trim(), companyAr: hrEl('companyAr').value.trim(), website: hrEl('website').value.trim(),
+      emailDomains: hrEl('domains').value.split(',').map(function (s) { return s.trim(); }).filter(Boolean),
+      countryCode: hrEl('cc').value.replace(/\D/g, ''),
+      departments: linesToList(hrEl('depts').value), titles: linesToList(hrEl('titles').value),
+      allowOther: hrEl('allowOther').checked, lockCompany: hrEl('lock').checked,
+      legalEn: hrEl('legalEn').value.trim(), legalAr: hrEl('legalAr').value.trim(), legalRequired: hrEl('legalReq').checked
+    };
+  }
+  function hrFlash(msg) {
+    var s = document.getElementById('hrStatus');
+    s.textContent = msg;
+    clearTimeout(hrFlash.t);
+    hrFlash.t = setTimeout(function () { s.textContent = ''; }, 5000);
+  }
+  function onHrEdit() {
+    var draft = readHr();
+    try { localStorage.setItem(DRAFT_STORE, JSON.stringify(draft)); } catch (e) {}
+    applyCfg(normCfg(draft));
+    render();
+  }
+  function dropDraft() {
+    try { localStorage.removeItem(DRAFT_STORE); } catch (e) {}
+    applyCfg(PUBLISHED || normCfg({}));
+    if (isHr) fillHr(CFG);
+    render();
+  }
+  document.getElementById('hrForm').addEventListener('input', onHrEdit);
+  document.getElementById('hrForm').addEventListener('change', onHrEdit);
+  document.getElementById('hrDownload').addEventListener('click', function () {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(readHr(), null, 2) + '\n'], { type: 'application/json' }));
+    a.download = 'company.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    hrFlash(t('hrSaved'));
+  });
+  document.getElementById('hrLoadPub').addEventListener('click', function () { dropDraft(); hrFlash(t('hrLoaded')); });
+  document.getElementById('discardDraft').addEventListener('click', dropDraft);
   document.getElementById('logoFile').addEventListener('change', function () { readLogoFile(this.files && this.files[0]); });
   document.getElementById('copySig').addEventListener('click', copyRich);
   document.getElementById('copyHtml').addEventListener('click', copyHtml);
@@ -843,6 +1233,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     form.elements.company.value = keep.company; form.elements.website.value = keep.website; form.elements.logo.value = keep.logo;
     form.querySelector('input[name=logoMode][value="' + keep.logoMode + '"]').checked = true;
     if (pageLang === 'ar') form.querySelector('input[name=dir][value="rtl"]').checked = true;
+    applyCfg(CFG);
     render();
   });
 
@@ -850,9 +1241,13 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
   document.getElementById('langBtn').addEventListener('click', function () {
     pageLang = pageLang === 'ar' ? 'en' : 'ar';
     try { localStorage.setItem('curve-page-lang', pageLang); } catch (e) {}
-    try { history.replaceState(null, '', location.pathname + (pageLang === 'ar' ? '?lang=ar' : '') + location.hash); } catch (e) {}
+    var qs = [];
+    if (isHr) qs.push('hr=1');
+    if (pageLang === 'ar') qs.push('lang=ar');
+    try { history.replaceState(null, '', location.pathname + (qs.length ? '?' + qs.join('&') : '') + location.hash); } catch (e) {}
     form.querySelector('input[name=dir][value="' + (pageLang === 'ar' ? 'rtl' : 'ltr') + '"]').checked = true;
     applyLang();
+    buildSelects();
     syncThemeBtn();
     render();
   });
@@ -863,7 +1258,23 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
   try { firstVisit = !localStorage.getItem(STORE); } catch (e) {}
   load();
   if (firstVisit && pageLang === 'ar') form.querySelector('input[name=dir][value="rtl"]').checked = true;
+  document.getElementById('hrPanel').hidden = !isHr;
+  applyCfg(normCfg(getDraft() || {}));
   render();
+
+  /* Published company settings. A local HR draft, if any, wins in this browser. */
+  function startCfg(pub) {
+    PUBLISHED = normCfg(pub || {});
+    var dr = getDraft();
+    applyCfg(dr ? normCfg(dr) : PUBLISHED);
+    if (isHr) fillHr(CFG);
+    render();
+  }
+  if (window.fetch && location.protocol !== 'file:') {
+    fetch('company.json', { cache: 'no-cache' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(startCfg, function () { startCfg(null); });
+  } else startCfg(null);
 })();
 </script>
 </body>
