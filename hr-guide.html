@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دليل إعدادات التوقيع</title>
+<meta name="description" content="دليل مصوّر لقسم الموارد البشرية: كيف تضبطين بيانات الشركة والأقسام والمسميات في صفحة توقيع البريد وتنشرينها للجميع.">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
+<style>
+  :root {
+    --navy: #2B2E73; --red: #E0242F; --bg: #f5f5f2; --card: #ffffff; --text: #17181f; --muted: #5d606d;
+    --border: #e4e5ea; --soft: #eef0f6; --tip: #eaf6ee; --tip-text: #1d5c36; --warn: #fff4d6; --warn-text: #6b4a00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #111218; --card: #1a1b23; --text: #ececf1; --muted: #a2a4b2; --border: #2a2c37; --soft: #23253a;
+      --tip: #16301f; --tip-text: #9be0b5; --warn: #3a2f12; --warn-text: #f3cf8a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.8 "Cairo", Tahoma, Arial, sans-serif; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+  header { background: var(--navy); color: #fff; }
+  header .wrap { display: flex; align-items: center; gap: 14px; padding-top: 22px; padding-bottom: 22px; }
+  header img { height: 44px; background: #fff; border-radius: 8px; padding: 4px 8px; }
+  header h1 { margin: 0; font-size: 22px; line-height: 1.4; }
+  header p { margin: 2px 0 0; font-size: 14px; opacity: .85; }
+  main { padding-top: 24px; padding-bottom: 48px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 8px; font-size: 19px; display: flex; align-items: center; gap: 10px; }
+  .num { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--red); color: #fff; display: inline-flex;
+    align-items: center; justify-content: center; font-size: 17px; font-weight: 700; }
+  .card p { margin: 0 0 10px; }
+  ol.marks { margin: 8px 0 12px; padding: 0; list-style: none; counter-reset: m; }
+  ol.marks li { counter-increment: m; position: relative; padding-inline-start: 34px; margin-bottom: 6px; }
+  ol.marks li::before { content: counter(m); position: absolute; inset-inline-start: 0; top: 4px; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--red); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .shot { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 10px; margin-top: 8px; background: #fff; }
+  .tip, .warn { border-radius: 10px; padding: 10px 14px; font-size: 14.5px; margin-top: 12px; }
+  .tip { background: var(--tip); color: var(--tip-text); }
+  .warn { background: var(--warn); color: var(--warn-text); }
+  .ltr { direction: ltr; unicode-bidi: isolate; font-family: Consolas, "Segoe UI", monospace; font-size: 14px;
+    background: var(--soft); border-radius: 6px; padding: 1px 6px; }
+  a { color: var(--navy); font-weight: 600; word-break: break-all; }
+  @media (prefers-color-scheme: dark) { a { color: #aab0ff; } }
+  .example { background: var(--soft); border-radius: 8px; padding: 10px 14px; margin: 8px 0; font-size: 15px; line-height: 1.9; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: start; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 14px; }
+  .need { margin: 6px 0 0; padding-inline-start: 22px; }
+  /* Single-card mode (?card=N): used to export each step as an image */
+  body.single header, body.single .card:not(.on) { display: none; }
+  body.single main { padding: 16px 0; }
+  body.single .card { margin: 0; }
+  .brand { display: none; align-items: center; gap: 10px; margin-bottom: 12px; color: var(--muted); font-size: 14px; }
+  .brand img { height: 26px; }
+  body.single .brand { display: flex; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <img src="logo.png" alt="Curve">
+    <div>
+      <h1>دليل إعدادات توقيع البريد</h1>
+      <p>لقسم الموارد البشرية: خطوة بخطوة، مع الصور</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="card" id="c0">
+    <div class="brand"><img src="logo.png" alt="">دليل إعدادات توقيع البريد</div>
+    <h2>قبل أن تبدئي</h2>
+    <p>من صفحة الإعدادات تتحكمين في بيانات الشركة التي تظهر في توقيعات كل الموظفين: اسم الشركة، الأقسام، المسميات الوظيفية، والملاحظة القانونية.</p>
+    <p>أي تغيير تنشرينه يظهر عند كل الموظفين خلال دقيقة أو دقيقتين.</p>
+    <p><b>ستحتاجين إلى:</b></p>
+    <ul class="need">
+      <li>رابط صفحة الإعدادات (في الخطوة 1).</li>
+      <li><b>مفتاح GitHub</b>: كلمة سر طويلة تبدأ بـ <span class="ltr">github_pat_</span>. يرسله لكِ مسؤول النظام مرة واحدة.</li>
+    </ul>
+    <div class="warn">المفتاح سري. لا ترسليه لأي شخص، ولا تضعيه في بريد أو مجموعة واتساب.</div>
+  </section>
+
+  <section class="card" id="c1">
+    <div class="brand"><img src="logo.png" alt="">دليل إعدادات توقيع البريد</div>
+    <h2><span class="num">1</span>افتحي صفحة الإعدادات</h2>
+    <p>افتحي هذا الرابط في المتصفح (Chrome أو Edge):</p>
+    <p><a href="https://ahmedgaidcurve.github.io/curve-signature/?hr=1&amp;lang=ar">ahmedgaidcurve.github.io/curve-signature/?hr=1</a></p>
+    <ol class="marks"><li><b>زر اللغة:</b> لو ظهرت الصفحة بالإنجليزية، اضغطي هذا الزر (سيكون مكتوبًا عليه <b>العربية</b>).</li></ol>
+    <img class="shot" src="guide/step1.png" alt="أعلى صفحة الإعدادات وزر تغيير اللغة">
+    <div class="tip">احفظي الرابط في المفضلة (Ctrl + D) حتى تجديه بسهولة المرة القادمة.</div>
+  </section>
+
+  <section class="card" id="c2">
+    <div class="brand"><img src="logo.png" alt="">دليل إعدادات توقيع البريد</div>
+    <h2><span class="num">2</span>بيانات الشركة</h2>
+    <ol class="marks">
+      <li><b>اسم الشركة بالعربية:</b> يظهر في التوقيعات العربية.</li>
+      <li><b>نطاقات بريد الشركة:</b> مثل <span class="ltr">curvemt.com</span>. لو كتب موظف بريدًا آخر (مثل Gmail) تظهر له رسالة تنبيه.</li>
+      <li><b>كود الدولة:</b> اكتبي <b>20</b> لمصر. يُستخدم لترتيب أرقام الموبايل تلقائيًا.</li>
+      <li><b>قفل اسم الشركة والموقع:</b> لو علّمتِ عليه، لا يستطيع الموظف تغيير اسم الشركة أو الموقع.</li>
+    </ol>
+    <img class="shot" src="guide/step2.png" alt="حقول بيانات الشركة">
+  </section>
+
+  <section class="card" id="c3">
+    <div class="brand"><img src="logo.png" alt="">دليل إعدادات توقيع البريد</div>
+    <h2><span class="num">3</span>الأقسام والمسميات الوظيفية</h2>
+    <p>اكتبي <b>كل قسم في سطر</b>: الاسم بالإنجليزية، ثم علامة <b>|</b>، ثم الاسم بالعربية.</p>
+    <div class="example"><span dir="ltr">Finance | المالية</span><br><span dir="ltr">Human Resources | الموارد البشرية</span></div>
+    <ol class="marks">
+      <li><b>الأقسام:</b> سطر لكل قسم.</li>
+      <li><b>المسميات الوظيفية:</b> بنفس الطريقة، سطر لكل مسمى.</li>
+      <li><b>السماح بقسم أو مسمى غير موجود:</b> لو علّمتِ عليه، يستطيع الموظف اختيار «أخرى» وكتابة اسم بنفسه.</li>
+    </ol>
+    <img class="shot" src="guide/step3.png" alt="خانات الأقسام والمسميات">
+    <div class="tip">علامة <b>|</b> على الكيبورد: اضغطي <b>Shift</b> مع زر <b>\</b> (فوق زر Enter). الكيبورد يجب أن يكون إنجليزي.</div>
+  </section>
+
+  <section class="card" id="c4">
+    <div class="brand"><img src="logo.png" alt="">دليل إعدادات توقيع البريد</div>
+    <h2><span class="num">4</span>الملاحظة القانونية (اختياري)</h2>
+    <p>جملة قصيرة بخط صغير تظهر أسفل التوقيع. اتركيها فارغة لو لا تحتاجونها.</p>
+    <ol class="marks">
+      <li><b>الملاحظة بالعربية</b> (وبجانبها الإنجليزية): تظهر حسب لغة التوقيع.</li>
+      <li><b>إلزامية:</b> لو علّمتِ عليها، لا يستطيع الموظف حذفها من توقيعه.</li>
+    </ol>
+    <img class="shot" src="guide/step4.png" alt="خانات الملاحظة القانونية">
+  </section>
+
+  <section class="card" id="c5">
+    <div class="brand"><img src="logo.png" alt="">دليل إعدادات توقيع البريد</div>
+    <h2><span class="num">5</span>راجعي النتيجة قبل النشر</h2>
+    <p>انزلي لأسفل الصفحة. ستجدين نموذج الموظف كما سيراه الجميع:</p>
+    <ol class="marks">
+      <li><b>المسمى الوظيفي</b> أصبح قائمة يختار منها الموظف.</li>
+      <li><b>القسم</b> أيضًا أصبح قائمة.</li>
+      <li><b>التوقيع</b> يأخذ الاسم العربي للقسم والمسمى تلقائيًا، ومعه الملاحظة القانونية.</li>
+    </ol>
+    <img class="shot" src="guide/step5.png" alt="القوائم المنسدلة والتوقيع في المعاينة">
+    <p style="margin-top:12px;">ستلاحظين شريطًا أصفر في أعلى الصفحة. معناه أن ما ترينه <b>مسودة على جهازك فقط</b>، ولم يصل للموظفين بعد.</p>
+    <img class="shot" src="guide/step7.png" alt="الشريط الأصفر وزر حذف المسودة">
+    <div class="tip">لو أردتِ إلغاء تعديلاتك والرجوع للإعدادات المنشورة، اضغطي <b>حذف المسودة</b>.</div>
+  </section>
+
+  <section class="card" id="c6">
+    <div class="brand"><img src="logo.png" alt="">دليل إعدادات توقيع البريد</div>
+    <h2><span class="num">6</span>انشري للجميع</h2>
+    <ol class="marks">
+      <li><b>الصقي مفتاح GitHub</b> في الخانة (Ctrl + V).</li>
+      <li>علّمي على <b>تذكّر المفتاح على هذا الكمبيوتر</b> حتى لا تلصقيه كل مرة. (على جهازك الشخصي فقط.)</li>
+      <li>اضغطي <b>نشر للجميع</b>.</li>
+      <li>تظهر رسالة خضراء: <b>تم النشر</b>. بعد دقيقة أو دقيقتين يرى كل الموظفين التغيير.</li>
+    </ol>
+    <img class="shot" src="guide/step6.png" alt="خانة المفتاح وزر نشر للجميع ورسالة تم النشر">
+  </section>
+
+  <section class="card" id="c7">
+    <div class="brand"><img src="logo.png" alt="">دليل إعدادات توقيع البريد</div>
+    <h2><span class="num">7</span>أرسلي الرابط للموظفين</h2>
+    <p>الموظفون يستخدمون الرابط العادي (بدون صفحة الإعدادات):</p>
+    <p><a href="https://ahmedgaidcurve.github.io/curve-signature/?lang=ar">ahmedgaidcurve.github.io/curve-signature/?lang=ar</a></p>
+    <p>كل موظف يكتب اسمه ورقمه، ويختار القسم والمسمى، ثم يضغط <b>نسخ التوقيع</b> ويلصقه في Outlook.</p>
+    <div class="warn">لا ترسلي رابط صفحة الإعدادات (<span class="ltr">?hr=1</span>) للموظفين.</div>
+  </section>
+
+  <section class="card" id="c8">
+    <div class="brand"><img src="logo.png" alt="">دليل إعدادات توقيع البريد</div>
+    <h2>لو ظهرت مشكلة</h2>
+    <table>
+      <tr><th>الرسالة أو المشكلة</th><th>ماذا تفعلين</th></tr>
+      <tr><td>مفتاح GitHub غير صحيح أو انتهت صلاحيته</td><td>اطلبي مفتاحًا جديدًا من مسؤول النظام.</td></tr>
+      <tr><td>هذا المفتاح لا يملك صلاحية تعديل مستودع curve-signature</td><td>صوّري الرسالة وأرسليها لمسؤول النظام.</td></tr>
+      <tr><td>فشل النشر. تأكد من اتصال الإنترنت</td><td>تأكدي من الإنترنت، ثم اضغطي <b>نشر للجميع</b> مرة أخرى.</td></tr>
+      <tr><td>نشرتُ ولا أرى التغيير</td><td>انتظري دقيقتين، ثم اضغطي <b>Ctrl + F5</b> لتحديث الصفحة.</td></tr>
+      <tr><td>خانة المفتاح فارغة</td><td>المفتاح محفوظ فقط على الجهاز الذي علّمتِ فيه «تذكّر المفتاح». الصقيه مرة أخرى.</td></tr>
+    </table>
+  </section>
+
+</main>
+<script>
+  /* ?card=N shows one card only (used to export each step as an image) */
+  var m = location.search.match(/[?&]card=(\d+)/);
+  if (m) {
+    document.body.classList.add('single');
+    var c = document.getElementById('c' + m[1]);
+    if (c) c.classList.add('on');
+  }
+</script>
+</body>
+</html>
