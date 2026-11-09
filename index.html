@@ -46,8 +46,14 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     --input: #15161d; --accent: #aab0ff; --focus: rgba(170, 176, 255, .22); --ok: #5fd08f; --warn-text: #f3cf8a;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 "Segoe UI", Tahoma, Arial, sans-serif; }
-  /* Arabic page uses Cairo; Arabic words on the English page too */
+  /* Cairo for Arabic letters only: English letters skip this font and use Segoe UI */
+  @font-face {
+    font-family: "Cairo Arabic"; src: url("fonts/cairo-arabic.woff2") format("woff2");
+    font-weight: 200 1000; font-style: normal; font-display: swap;
+    unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+200C-200D, U+FB50-FDFF, U+FE70-FEFC;
+  }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 "Cairo Arabic", "Segoe UI", Tahoma, Arial, sans-serif; }
+  /* Arabic page: everything in Cairo (Google Fonts) */
   html[lang="ar"] body, [lang="ar"], .pills input[value="rtl"] + span { font-family: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif; }
   .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
 
@@ -172,7 +178,7 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     <img class="logo-light" src="logo.png" alt="Curve">
     <img class="logo-dark" src="logo-dark.png" alt="Curve">
     <h1 data-i18n="title">Email signature</h1>
-    <span class="ver">v9</span>
+    <span class="ver">v10</span>
     <button class="theme-btn" id="langBtn" type="button" lang="ar">العربية</button>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode">
       <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><g class="i-sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></g></svg>
@@ -529,7 +535,8 @@ try { var t = localStorage.getItem('curve-theme'); if (t) document.documentEleme
     var start = rtl ? 'right' : 'left';
     var end = rtl ? 'left' : 'right';
     /* Arabic: Cairo first. Email apps can't load web fonts, so readers without Cairo installed get Segoe UI / Tahoma */
-    var font = rtl ? "font-family:Cairo,'Segoe UI',Tahoma,Arial,sans-serif;" : "font-family:'Segoe UI',Tahoma,Arial,sans-serif;";
+    /* English: 'Cairo Arabic' shows Arabic words (e.g. the other-language name) in Cairo on this page; email apps skip it */
+    var font = rtl ? "font-family:Cairo,'Segoe UI',Tahoma,Arial,sans-serif;" : "font-family:'Cairo Arabic','Segoe UI',Tahoma,Arial,sans-serif;";
     var link = 'color:#333333;text-decoration:none;';
     var GREY = '#6b6f85';
     var SEP = '<span style="color:#C4C7D4;">&nbsp;|&nbsp;</span>';
